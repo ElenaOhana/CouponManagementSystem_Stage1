@@ -109,13 +109,14 @@ public class CompaniesDBDAO implements  CompaniesDAO{
                     ClientStatus clientStatus = ClientStatus.valueOf(status);
                     Company company = new Company(id, name, email, password, clientStatus);
                     companies.add(company);
+                    return companies;
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         connectionPool.restoreConnection(connection);
-        return companies;
+        return null;
     }
 
     @Override

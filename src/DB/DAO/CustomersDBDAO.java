@@ -108,20 +108,41 @@ public class CustomersDBDAO implements CustomersDAO{
                     String email =resultSet.getString("email");
                     String password =resultSet.getString("password");
                     String status =resultSet.getString("Status");
-                    ClientStatus clientStatus = ClientStatus.valueOf(status);
-                    Customer customer = new Customer(id, firstName, lastName, email, password, clientStatus);
+                    ClientStatus customerStatus = ClientStatus.valueOf(status);
+                    Customer customer = new Customer(id, firstName, lastName, email, password, customerStatus);
                     customerList.add(customer);
+                    return customerList;
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         connectionPool.restoreConnection(connection);
-        return customerList;
+        return null; // TODO Ask: What is better - this way or here to throw Exception
     }
 
     @Override
     public Customer getOneCustomer(int customerID) {
+        Connection connection = connectionPool.getConnection();
+        final String queryTempGetCustomerByID = "SELECT * FROM `customers` WHERE `id` = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetCustomerByID)) {
+            preparedStatement.setInt(1, customerID);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    String firstName = resultSet.getString("FirstName");
+                    String lastName = resultSet.getString("LastName");
+                    String email = resultSet.getString("email");
+                    String password =resultSet.getString("password");
+                    String status =resultSet.getString("Status");
+                    ClientStatus customerStatus = ClientStatus.valueOf(status);
+                    return new Customer(id, firstName, lastName, email, password,customerStatus);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        connectionPool.restoreConnection(connection);
         return null;
     }
 }

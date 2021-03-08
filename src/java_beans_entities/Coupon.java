@@ -1,6 +1,7 @@
 package java_beans_entities;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Coupon {
     private int id;
@@ -8,15 +9,15 @@ public class Coupon {
     private int categoryID;
     private String title;// "50 אחוז הנחה על טיפולי ספא"
     private String description; // "פירוט יותר מדוייק"
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
     private int amount; // How much coupons like that we want to sell
     private double price;
     private String image;
     CouponStatus couponStatus = CouponStatus.ABLE; // // TODO IN BusinessLogic: only after call boughtCoupon() OR expiredCoupon() method - the clientStatus turns to disable.
 
     public Coupon(int id, int companyId, int categoryID, String title, String description,
-                  LocalDate startDate, LocalDate endDate, int amount, double price, String image) {
+                  LocalDateTime startDate, LocalDateTime endDate, int amount, double price, String image) {
         this.id = id;
         this.companyId = companyId;
         this.categoryID = categoryID;
@@ -30,7 +31,7 @@ public class Coupon {
     }
 
     public Coupon(int companyId, int categoryID, String title, String description,
-                  LocalDate startDate, LocalDate endDate, int amount, double price, String image) {
+                  LocalDateTime startDate, LocalDateTime endDate, int amount, double price, String image) {
         this.companyId = companyId;
         this.categoryID = categoryID;
         this.title = title;
@@ -90,19 +91,19 @@ public class Coupon {
         this.description = description;
     }
 
-    public LocalDate getStartDate() {
+    public LocalDateTime getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(LocalDate startDate) {
+    public void setStartDate(LocalDateTime startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDate getEndDate() {
+    public LocalDateTime getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDate endDate) {
+    public void setEndDate(LocalDateTime endDate) {
         this.endDate = endDate;
     }
 
