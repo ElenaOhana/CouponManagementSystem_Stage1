@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CustomersDBDAO implements CustomersDAO{
-    ConnectionPool connectionPool = ConnectionPool.getInstance();
+    private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
     @Override
     public boolean isCustomerExists(String email, String password) {
@@ -52,7 +52,7 @@ public class CustomersDBDAO implements CustomersDAO{
                 throw new SQLException("Creating Customer failed, no rows affected."); //TODO Exception - Creating
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //FIXME return value
         }
         connectionPool.restoreConnection(connection);
     }
@@ -72,7 +72,7 @@ public class CustomersDBDAO implements CustomersDAO{
                 throw new SQLException("Update Customer failed, no rows affected."); //TODO Exception - Update
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //FIXME
         }
         connectionPool.restoreConnection(connection);
     }
@@ -81,7 +81,7 @@ public class CustomersDBDAO implements CustomersDAO{
     public void deleteCustomer(int customerID) { // I do not delete object, I add status inactive instead
         // TODO  to add status inactive to ClientStatus after deleting
         Connection connection = connectionPool.getConnection();
-        final String queryTempChangeCustomerStatus = "UPDATE `customers` SET `CompanyStatus` = `inactive` WHERE `id` = ?"; //TODO TO CHECK `inactive`
+        final String queryTempChangeCustomerStatus = "UPDATE `customers` SET `Status` = `inactive` WHERE `id` = ?"; //TODO TO CHECK `inactive`
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempChangeCustomerStatus)) {
             preparedStatement.setInt(1, customerID);
             int row = preparedStatement.executeUpdate();
@@ -89,7 +89,7 @@ public class CustomersDBDAO implements CustomersDAO{
                 throw new SQLException("Delete Customer failed, no rows affected."); //TODO Exception - Delete
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //FIXME
         }
         connectionPool.restoreConnection(connection);
     }
@@ -115,7 +115,7 @@ public class CustomersDBDAO implements CustomersDAO{
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //FIXME
         }
         connectionPool.restoreConnection(connection);
         return null; // TODO Ask: What is better - this way or here to throw Exception
@@ -124,6 +124,7 @@ public class CustomersDBDAO implements CustomersDAO{
     @Override
     public Customer getOneCustomer(int customerID) {
         Connection connection = connectionPool.getConnection();
+        Customer customer = null;
         final String queryTempGetCustomerByID = "SELECT * FROM `customers` WHERE `id` = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetCustomerByID)) {
             preparedStatement.setInt(1, customerID);
@@ -136,13 +137,15 @@ public class CustomersDBDAO implements CustomersDAO{
                     String password =resultSet.getString("password");
                     String status =resultSet.getString("Status");
                     ClientStatus customerStatus = ClientStatus.valueOf(status);
-                    return new Customer(id, firstName, lastName, email, password,customerStatus);
+                    customer = new Customer(id, firstName, lastName, email, password,customerStatus);
+                }  else {
+                    throw new SQLException("Creating customer failed, no ID obtained."); //FIXME  Exception get
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //FIXME
         }
         connectionPool.restoreConnection(connection);
-        return null;
+        return customer;
     }
 }

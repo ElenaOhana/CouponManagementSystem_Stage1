@@ -24,28 +24,28 @@ public class ConnectionPool { // ConnectionPool is Singleton
         return instance;
     }
 
-    private Connection getConnectionToFillThePool(){ // TODO Method?
+    private Connection getConnectionToFillThePool(){
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //todo runtime exception
         }
         return connection;
     }
 
     private ConnectionPool() { //Constructor
-        this.freeConnections = new HashSet<>(MAX_AMOUNT_CONNECTIONS); // How many Connections do we need?
+        this.freeConnections = new HashSet<>(MAX_AMOUNT_CONNECTIONS);
         for (int i = 0; i < MAX_AMOUNT_CONNECTIONS; i++) {
-            freeConnections.add(getConnectionToFillThePool()); // TODO OR to call restoreConnection() method??
+            freeConnections.add(getConnectionToFillThePool());
         }
     }
 
-    public Connection getConnection() {
+    public synchronized Connection getConnection() {
         Connection connection = null;
         if (freeConnections.isEmpty()) {
             try {
-                wait();  //TODO?
+                wait();  //todo synchronized only a small block?
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -57,7 +57,7 @@ public class ConnectionPool { // ConnectionPool is Singleton
         return connection;
     }
 
-    public void restoreConnection(Connection connection) { // todo I UNDERSTOOD right: don't forget to call this method in the end of query INSTEAD OF TO CLOSE() CONNECTION IN QUERY
+    public synchronized void restoreConnection(Connection connection) { // todo i don't CLOSE() CONNECTION IN QUERY, if we need to close them anywhere?
         if (usedConnections.contains(connection)) { // I check here if the connection that I return is the same connection that I received.
             if (freeConnections.size() < MAX_AMOUNT_CONNECTIONS) { // todo I don't sure if i need this check
                 freeConnections.add(connection);
@@ -67,7 +67,7 @@ public class ConnectionPool { // ConnectionPool is Singleton
                 e.printStackTrace();
             }*/
                 usedConnections.remove(connection); // TODO check after Threads addition
-                notify(); // TODO to check after Thread?
+                notify(); // TODO synchronized only a small block?
             }
         }
     }
@@ -78,7 +78,7 @@ public class ConnectionPool { // ConnectionPool is Singleton
                 try {
                     freeConnection.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    e.printStackTrace();// fixme
                 }
             }
         }

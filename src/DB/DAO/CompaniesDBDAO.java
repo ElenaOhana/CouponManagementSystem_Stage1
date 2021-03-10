@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CompaniesDBDAO implements  CompaniesDAO{
-    ConnectionPool connectionPool = ConnectionPool.getInstance();
+    private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
     @Override
     public boolean isCompanyExists(String email, String password) {
@@ -32,7 +32,7 @@ public class CompaniesDBDAO implements  CompaniesDAO{
         } catch (SQLException e) {
             e.printStackTrace();
         } //TODO if need the finally block here?? If YES - in ALL methods to change
-        finally {
+        finally {//YES
             connectionPool.restoreConnection(connection);
         }
         return result;
@@ -122,6 +122,7 @@ public class CompaniesDBDAO implements  CompaniesDAO{
     @Override
     public Company getOneCompany(int companyID) {
         Connection connection = connectionPool.getConnection();
+        Company company = null;
         String queryTempGetCompanyByID = "SELECT * FROM `Companies` WHERE `id` = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetCompanyByID)) {
             preparedStatement.setInt(1, companyID);
@@ -133,13 +134,15 @@ public class CompaniesDBDAO implements  CompaniesDAO{
                     String password = resultSet.getString("password");
                     String status = resultSet.getString("Status");
                     ClientStatus clientStatus = ClientStatus.valueOf(status);
-                    return new Company(id, name, email, password, clientStatus);
+                    company = new Company(id, name, email, password, clientStatus);
+                } else {
+                    throw new SQLException("Creating company failed, no ID obtained."); //FIXME  Exception get
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         connectionPool.restoreConnection(connection);
-        return null;
+        return company;
     }
 }
