@@ -1,5 +1,6 @@
 package DB.DAO;
 
+import java_beans_entities.Category;
 import java_beans_entities.Coupon;
 
 import java.util.List;
@@ -19,4 +20,8 @@ public interface CouponsDAO {
     void addCouponPurchase(int customerID, int couponId);
 
     void deleteCouponPurchase(int customerID, int couponId);
+
+    List<Coupon> getCouponListByCategory(Category category);
+
+    List<Coupon> getCouponListByMaxPrice(double maxPrice);
 }

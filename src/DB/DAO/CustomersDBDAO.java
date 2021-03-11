@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CustomersDBDAO implements CustomersDAO{
+public class CustomersDBDAO implements CustomersDAO {
     private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
     @Override
@@ -19,10 +19,10 @@ public class CustomersDBDAO implements CustomersDAO{
         final String queryTempGetEmailAndPassword = "SELECT `email`, `password` FROM `customers` WHERE `email` = ? AND `password` = ?";
         Connection connection = connectionPool.getConnection();
         boolean result = false;
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetEmailAndPassword)){
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetEmailAndPassword)) {
             preparedStatement.setString(1, email);
             preparedStatement.setString(2, password);
-            try(ResultSet resultSet = preparedStatement.executeQuery()) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 boolean emailsEquals = resultSet.getString("email").equalsIgnoreCase(email);
                 boolean passwordsEquals = resultSet.getString("password").equalsIgnoreCase(password);
                 if (resultSet.next()) {
@@ -32,9 +32,10 @@ public class CustomersDBDAO implements CustomersDAO{
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //FIXME
+        } finally {
+            connectionPool.restoreConnection(connection);
         }
-        connectionPool.restoreConnection(connection);
         return result;
     }
 
@@ -53,15 +54,16 @@ public class CustomersDBDAO implements CustomersDAO{
             }
         } catch (SQLException e) {
             e.printStackTrace(); //FIXME return value
+        } finally {
+            connectionPool.restoreConnection(connection);
         }
-        connectionPool.restoreConnection(connection);
     }
 
     @Override
     public void updateCustomer(Customer customer) {
         Connection connection = connectionPool.getConnection();
         final String queryTempUpdateCustomer = "UPDATE `customers` SET `FirstName` = ?, `LastName` = ?, `email` = ?, `password` = ?  WHERE `id` = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempUpdateCustomer)){
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempUpdateCustomer)) {
             preparedStatement.setInt(5, customer.getId());
             preparedStatement.setString(1, customer.getFirstName());
             preparedStatement.setString(2, customer.getLastName());
@@ -73,8 +75,9 @@ public class CustomersDBDAO implements CustomersDAO{
             }
         } catch (SQLException e) {
             e.printStackTrace(); //FIXME
+        } finally {
+            connectionPool.restoreConnection(connection);
         }
-        connectionPool.restoreConnection(connection);
     }
 
     @Override
@@ -90,8 +93,9 @@ public class CustomersDBDAO implements CustomersDAO{
             }
         } catch (SQLException e) {
             e.printStackTrace(); //FIXME
+        } finally {
+            connectionPool.restoreConnection(connection);
         }
-        connectionPool.restoreConnection(connection);
     }
 
     @Override
@@ -105,20 +109,20 @@ public class CustomersDBDAO implements CustomersDAO{
                     int id = resultSet.getInt("id");
                     String firstName = resultSet.getString("FirstName");
                     String lastName = resultSet.getString("LastName");
-                    String email =resultSet.getString("email");
-                    String password =resultSet.getString("password");
-                    String status =resultSet.getString("Status");
+                    String email = resultSet.getString("email");
+                    String password = resultSet.getString("password");
+                    String status = resultSet.getString("Status");
                     ClientStatus customerStatus = ClientStatus.valueOf(status);
                     Customer customer = new Customer(id, firstName, lastName, email, password, customerStatus);
                     customerList.add(customer);
-                    return customerList;
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace(); //FIXME
+        } finally {
+            connectionPool.restoreConnection(connection);
         }
-        connectionPool.restoreConnection(connection);
-        return null; // TODO Ask: What is better - this way or here to throw Exception
+        return customerList;
     }
 
     @Override
@@ -134,18 +138,19 @@ public class CustomersDBDAO implements CustomersDAO{
                     String firstName = resultSet.getString("FirstName");
                     String lastName = resultSet.getString("LastName");
                     String email = resultSet.getString("email");
-                    String password =resultSet.getString("password");
-                    String status =resultSet.getString("Status");
+                    String password = resultSet.getString("password");
+                    String status = resultSet.getString("Status");
                     ClientStatus customerStatus = ClientStatus.valueOf(status);
-                    customer = new Customer(id, firstName, lastName, email, password,customerStatus);
-                }  else {
+                    customer = new Customer(id, firstName, lastName, email, password, customerStatus);
+                } else {
                     throw new SQLException("Creating customer failed, no ID obtained."); //FIXME  Exception get
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace(); //FIXME
+        } finally {
+            connectionPool.restoreConnection(connection);
         }
-        connectionPool.restoreConnection(connection);
         return customer;
     }
 }

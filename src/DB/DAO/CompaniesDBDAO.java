@@ -8,7 +8,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CompaniesDBDAO implements  CompaniesDAO{
+public class CompaniesDBDAO implements CompaniesDAO {
     private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
     @Override
@@ -16,11 +16,11 @@ public class CompaniesDBDAO implements  CompaniesDAO{
         final String queryTempGetEmailAndPassword = "SELECT `Email`, `Password` FROM `Companies` WHERE `Email` = ? AND `Password` = ?";
         Connection connection = connectionPool.getConnection();
         boolean result = false;
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetEmailAndPassword)){
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetEmailAndPassword)) {
             preparedStatement.setString(1, email);
             preparedStatement.setString(2, password);
             preparedStatement.executeQuery();
-            try(ResultSet resultSet = preparedStatement.getResultSet()) { //TODO the check
+            try (ResultSet resultSet = preparedStatement.getResultSet()) { //TODO the check
                 boolean emailsEquals = resultSet.getString("Email").equalsIgnoreCase(email);
                 boolean passwordsEquals = resultSet.getString("Password").equalsIgnoreCase(password);
                 if (resultSet.next()) {
@@ -30,9 +30,8 @@ public class CompaniesDBDAO implements  CompaniesDAO{
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-        } //TODO if need the finally block here?? If YES - in ALL methods to change
-        finally {//YES
+            e.printStackTrace();//Fixme
+        } finally {
             connectionPool.restoreConnection(connection);
         }
         return result;
@@ -52,9 +51,10 @@ public class CompaniesDBDAO implements  CompaniesDAO{
                 throw new SQLException("Creating Company failed, no rows affected."); //TODO Exception - Create
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace();//Fixme
+        } finally {
+            connectionPool.restoreConnection(connection);
         }
-        connectionPool.restoreConnection(connection);
     }
 
     @Override
@@ -72,9 +72,10 @@ public class CompaniesDBDAO implements  CompaniesDAO{
                 throw new SQLException("Update Company failed, no rows affected."); //TODO Exception - Update
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace();//Fixme
+        } finally {
+            connectionPool.restoreConnection(connection);
         }
-        connectionPool.restoreConnection(connection);
     }
 
     @Override
@@ -88,9 +89,10 @@ public class CompaniesDBDAO implements  CompaniesDAO{
                 throw new SQLException("Delete Company failed, no rows affected."); //TODO Exception - Delete
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace();//Fixme
+        } finally {
+            connectionPool.restoreConnection(connection);
         }
-        connectionPool.restoreConnection(connection);
     }
 
     @Override
@@ -109,14 +111,14 @@ public class CompaniesDBDAO implements  CompaniesDAO{
                     ClientStatus clientStatus = ClientStatus.valueOf(status);
                     Company company = new Company(id, name, email, password, clientStatus);
                     companies.add(company);
-                    return companies;
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace();//Fixme
+        } finally {
+            connectionPool.restoreConnection(connection);
         }
-        connectionPool.restoreConnection(connection);
-        return null;
+        return companies;
     }
 
     @Override
@@ -140,9 +142,10 @@ public class CompaniesDBDAO implements  CompaniesDAO{
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace();//Fixme
+        } finally {
+            connectionPool.restoreConnection(connection);
         }
-        connectionPool.restoreConnection(connection);
         return company;
     }
 }

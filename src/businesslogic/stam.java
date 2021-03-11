@@ -1,4 +1,4 @@
-package BusinessLogic;
+package businesslogic;
 
 public class stam {
     //חלק ה" ע"ם 5
