@@ -2,6 +2,7 @@ package DB.DAO;
 
 import DB.ConnectionPool;
 import com.sun.deploy.net.MessageHeader;
+import exceptions.InternalSystemException;
 import java_beans_entities.Category;
 import java_beans_entities.Coupon;
 import java_beans_entities.CouponStatus;
@@ -15,7 +16,7 @@ public class CouponsDBDAO implements CouponsDAO {
     private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
     @Override
-    public void addCoupon(Coupon coupon) {
+    public void addCoupon(Coupon coupon) throws SQLException, InternalSystemException {
         Connection connection = connectionPool.getConnection();
         final String queryTempInsertCoupon = "INSERT INTO `Coupons` (`title`, `Description`, `StartDate`, `EndDate`, `Amount`, `Price`, `IMAGE`, `CompanyId`, `CategoryId`) VALUES (?,?,?,?,?,?,?,?,?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempInsertCoupon)) {
@@ -30,17 +31,15 @@ public class CouponsDBDAO implements CouponsDAO {
             preparedStatement.setInt(9, coupon.getCategoryID());
             int row = preparedStatement.executeUpdate();
             if (row == 0) {
-                throw new SQLException("Creating Coupon failed, no rows affected."); //TODO Exception - Creating
+                throw new InternalSystemException("Creating Coupon failed, no rows affected.");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();//FIXME
         } finally {
             connectionPool.restoreConnection(connection);
         }
     }
 
     @Override
-    public void updateCoupon(Coupon coupon) {
+    public void updateCoupon(Coupon coupon) throws SQLException, InternalSystemException {
         Connection connection = connectionPool.getConnection();
         final String queryTempUpdateCoupon = "UPDATE `coupons` SET `title`=?, `Description`=?, `StartDate`=?, `EndDate`=?, `Amount`=?, `Price`=?, `IMAGE`=?, `CompanyId`=?, `CategoryId`=?, WHERE `id` = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempUpdateCoupon)) {
@@ -56,34 +55,30 @@ public class CouponsDBDAO implements CouponsDAO {
             preparedStatement.setInt(9, coupon.getCategoryID());
             int row = preparedStatement.executeUpdate();
             if (row == 0) {
-                throw new SQLException("Update Customer failed, no rows affected."); //TODO Exception - Update
+                throw new InternalSystemException("Update Customer failed, no rows affected.");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();//FIXME
         } finally {
             connectionPool.restoreConnection(connection);
         }
     }
 
     @Override
-    public void deleteCoupon(int couponID) {
+    public void deleteCoupon(int couponID) throws SQLException, InternalSystemException {
         Connection connection = connectionPool.getConnection();
         final String queryTempChangeCouponStatusByCouponId = "UPDATE `coupons` SET `Status` = `unable` WHERE `id` = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempChangeCouponStatusByCouponId)) {
             preparedStatement.setInt(1, couponID);
             int row = preparedStatement.executeUpdate();
             if (row == 0) {
-                throw new SQLException("Delete Customer failed, no rows affected."); //FIXME Exception - Delete
+                throw new InternalSystemException("Delete Customer failed, no rows affected.");
             }
-        } catch (SQLException e) {
-            e.printStackTrace(); //FIXME
         } finally {
             connectionPool.restoreConnection(connection);
         }
     }
 
     @Override
-    public List<Coupon> getAllCoupons() {
+    public List<Coupon> getAllCoupons() throws SQLException {
         List<Coupon> couponList = new ArrayList<>();
         Connection connection = connectionPool.getConnection();
         final String queryTempGetAllCoupons = "SELECT * FROM `coupons`";
@@ -106,8 +101,6 @@ public class CouponsDBDAO implements CouponsDAO {
                     couponList.add(coupon);
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();//FIXME
         } finally {
             connectionPool.restoreConnection(connection);
         }
@@ -115,7 +108,7 @@ public class CouponsDBDAO implements CouponsDAO {
     }
 
     @Override
-    public List<Coupon> getCouponListByCategory(Category category) {
+    public List<Coupon> getCouponListByCategory(Category category) throws SQLException {
         Connection connection = connectionPool.getConnection();
         Coupon coupon;
         List<Coupon> couponList = new ArrayList<>();
@@ -140,8 +133,6 @@ public class CouponsDBDAO implements CouponsDAO {
                     couponList.add(coupon);
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace(); //FIXME
         } finally {
             connectionPool.restoreConnection(connection);
         }
@@ -149,7 +140,7 @@ public class CouponsDBDAO implements CouponsDAO {
     }
 
     @Override
-    public List<Coupon> getCouponListByMaxPrice(double maxPrice) {
+    public List<Coupon> getCouponListByMaxPrice(double maxPrice) throws SQLException {
         //final String queryTempSelectCouponByMaxPrice = "SELECT max(`price`) FROM `coupons`"; //TODO Why do we need a List if the groupFunction(max) return one object??
         final String queryTempSelectCouponByMaxPrice = "SELECT * FROM `coupons` WHERE `price`=?";
         Connection connection = connectionPool.getConnection();
@@ -175,8 +166,6 @@ public class CouponsDBDAO implements CouponsDAO {
                     couponList.add(coupon);
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace(); //FIXME
         } finally {
             connectionPool.restoreConnection(connection);
         }
@@ -184,7 +173,7 @@ public class CouponsDBDAO implements CouponsDAO {
     }
 
     @Override
-    public Coupon getOneCoupon(int couponID) {
+    public Coupon getOneCoupon(int couponID) throws SQLException, InternalSystemException {
         Connection connection = connectionPool.getConnection();
         Coupon coupon = null;
         final String queryTempGetCouponByID = "SELECT * FROM `coupons` WHERE `id` = ?";
@@ -206,11 +195,9 @@ public class CouponsDBDAO implements CouponsDAO {
                     CouponStatus couponStatus = CouponStatus.valueOf(couponStatusStr);
                     coupon = new Coupon(couponID, companyId, categoryId, title, description, startDate, endDate, amount, price, image, couponStatus);
                 } else {
-                    throw new SQLException("Creating coupon failed, no ID obtained."); //FIXME  Exception get
+                    throw new InternalSystemException("Creating coupon failed, no ID obtained.");
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace(); //FIXME
         } finally {
             connectionPool.restoreConnection(connection);
         }
@@ -218,7 +205,7 @@ public class CouponsDBDAO implements CouponsDAO {
     }
 
     @Override
-    public void addCouponPurchase(int customerID, int couponId) {
+    public void addCouponPurchase(int customerID, int couponId) throws SQLException, InternalSystemException {
         Connection connection = connectionPool.getConnection();
         final String queryTempAddCouponPurchase = "INSERT INTO `customers_vs_coupons` (`CustomerId`, `CouponId`) VALUES (?,?)";
         //"INSERT INTO `Coupons` (`title`, `Description`, `StartDate`, `EndDate`, `Amount`, `Price`, `IMAGE`, `CompanyId`, `CategoryId`) VALUES (?,?,?,?,?,?,?,?,?)";
@@ -227,17 +214,15 @@ public class CouponsDBDAO implements CouponsDAO {
             preparedStatement.setInt(2, couponId);
             int row = preparedStatement.executeUpdate();
             if (row == 0) {
-                throw new SQLException("Adding CouponPurchase failed, no rows affected."); //TODO Exception - Update
+                throw new InternalSystemException("Adding CouponPurchase failed, no rows affected.");
             }
-        } catch (SQLException e) {
-            e.printStackTrace(); //FIXME
         } finally {
             connectionPool.restoreConnection(connection);
         }
     }
 
     @Override
-    public void deleteCouponPurchase(int customerID, int couponId) {
+    public void deleteCouponPurchase(int customerID, int couponId) throws SQLException, InternalSystemException {
         Connection connection = connectionPool.getConnection();
         final String queryTempChangeCouponStatusByCouponIdAndCustomerID = "UPDATE `coupons` SET `Status` = `unable` WHERE `id` = (" +
                 "SELECT `couponId` FROM `customers_vs_coupons` WHERE `couponId`=? AND `customerId` = ?)";
@@ -246,10 +231,8 @@ public class CouponsDBDAO implements CouponsDAO {
             preparedStatement.setInt(2, customerID);
             int row = preparedStatement.executeUpdate();
             if (row == 0) {
-                throw new SQLException("Delete CouponPurchase failed, no rows affected."); //FIXME Exception - Delete CouponPurchase
+                throw new InternalSystemException("Delete CouponPurchase failed, no rows affected.");
             }
-        } catch (SQLException e) {
-            e.printStackTrace(); //FIXME
         } finally {
             connectionPool.restoreConnection(connection);
         }
