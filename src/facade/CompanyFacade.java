@@ -12,15 +12,17 @@ import java.util.List;
 public class CompanyFacade extends ClientFacade{
     private int companyId;
 
+    //login returns companyId the connected/loginned Company
+
     public CompanyFacade(int companyId) {
         this.companyId = companyId;
     }
 
     @Override
-    public boolean login(String mail, String password) throws CouponSystemException {
+    public boolean login(String email, String password) throws CouponSystemException {
         boolean loginTrue;
         try {
-            loginTrue =  companiesDAO.isCompanyExists(mail, password);
+            loginTrue =  companiesDAO.isCompanyExists(email, password);
         } catch (SQLException e) {
             throw new CouponSystemException("DB error");
         }
@@ -30,8 +32,12 @@ public class CompanyFacade extends ClientFacade{
     public void addCoupon(Coupon coupon) throws CouponSystemException {
         try {
             couponsDAO.addCoupon(coupon);
-        } catch (SQLException | InternalSystemException e) {
-            throw new CouponSystemException("DB error", e);
+        }
+        //TODO 2 catch blocks: with cause for InternalSystemException, and without cause for SQLException that throws preparedStatement. Instead of catch (SQLException | InternalSystemException e) ?
+        catch (SQLException e) {
+            throw new CouponSystemException("DB error");
+        } catch (InternalSystemException e) {
+            throw new CouponSystemException("DB error.", e);
         }
     }
 
@@ -47,7 +53,7 @@ public class CompanyFacade extends ClientFacade{
         try {
             couponsDAO.deleteCoupon(couponId);
         } catch (SQLException | InternalSystemException e) {
-            throw new CouponSystemException("DB error", e);
+            throw new CouponSystemException("DB error.", e);
         }
     }
 
@@ -63,7 +69,7 @@ public class CompanyFacade extends ClientFacade{
 
     public List<Coupon> getCompanyCoupons(Category category) throws CouponSystemException {
         try {
-            return couponsDAO.getCouponListByCategory(category);
+            return couponsDAO.getCouponListByCategory(category); // TODO to ask if it OK to return in try block
         } catch (SQLException e) {
             throw new CouponSystemException("DB error");
         }
@@ -77,11 +83,15 @@ public class CompanyFacade extends ClientFacade{
         }
     }
 
-    public Company getCompanyDetails(int companyId) throws CouponSystemException { // TODO without parameter how will we know what Company to return?
+    public Company getCompanyDetails() throws CouponSystemException { // TODO without parameter how will we know what Company to return???
+        Company company;
         try {
-            return companiesDAO.getOneCompany(companyId);
-        } catch (InternalSystemException | SQLException e) {
-            throw new CouponSystemException("DB error", e); //and write to log file
+            company = companiesDAO.getOneCompany(companyId);
+        } catch (SQLException e) {
+            throw new CouponSystemException("DB error");
+        } catch (InternalSystemException e) {
+            throw new CouponSystemException("DB error.", e);
         }
+        return company;
     }
 }
