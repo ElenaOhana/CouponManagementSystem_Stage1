@@ -9,49 +9,76 @@ import java_beans_entities.Coupon;
 import java.sql.SQLException;
 import java.util.List;
 
-public class CompanyFacade extends ClientFacade{
+public class CompanyFacade extends ClientFacade {
     private int companyId;
 
-    //login returns companyId the connected/loginned Company
-
-    public CompanyFacade(int companyId) {
+    public CompanyFacade(int companyId){
         this.companyId = companyId;
     }
-
-    @Override
-    public boolean login(String email, String password) throws CouponSystemException {
+    public static boolean login(String email, String password) throws CouponSystemException {
         boolean loginTrue;
         try {
-            loginTrue =  companiesDAO.isCompanyExists(email, password);
+            loginTrue = companiesDAO.isCompanyExists(email, password);
         } catch (SQLException e) {
-            throw new CouponSystemException("DB error");
-        }
-        return loginTrue;
-    }
-
-    public void addCoupon(Coupon coupon) throws CouponSystemException {
-        try {
-            couponsDAO.addCoupon(coupon);
-        }
-        //TODO 2 catch blocks: with cause for InternalSystemException, and without cause for SQLException that throws preparedStatement. Instead of catch (SQLException | InternalSystemException e) ?
-        catch (SQLException e) {
             throw new CouponSystemException("DB error");
         } catch (InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);
         }
+        return loginTrue;
     }
 
-    public void updateCoupon(Coupon coupon) throws CouponSystemException {
+    public static int loginCompanyReturnId(String email, String password) throws CouponSystemException {
+        int companyId = 0;
         try {
-            couponsDAO.updateCoupon(coupon);
-        } catch (SQLException | InternalSystemException e) {
-            throw new CouponSystemException("DB error", e);
+            if (companiesDAO.isCompanyExists(email, password)) {
+                try {
+                    companyId = companiesDAO.loginCompany(email, password);
+                } catch (SQLException e) {
+                    throw new CouponSystemException("DB error.");
+                }
+            }
+        } catch (SQLException e) {
+            throw new CouponSystemException("An error has occurred.", e);
+        } catch (InternalSystemException e) {
+            throw new CouponSystemException("DB error.", e);
+        }
+        return companyId;
+    }
+
+    //TODO  if need the transaction here???
+    public void addCoupon(Coupon coupon) throws CouponSystemException {
+        try {
+            if (coupon.getCompanyId() == companyId) { // TODO to check in all places where we (have to check Login) if the coupons.companyId == companyId
+                List<Coupon> couponList = couponsDAO.getCompanyCouponsByCompanyId(companyId);
+                if (!couponList.contains(coupon)) {
+                    couponsDAO.addCoupon(coupon);
+                } else {
+                    throw new CouponSystemException("An error has occurred. The coupon exist already.");
+                }
+            } else {
+                throw new CouponSystemException("The action is illegal");
+            }
+        } catch (SQLException e) {
+            throw new CouponSystemException("DB error");
         }
     }
 
+    //Documentation: I do 2 catch blocks: with cause for InternalSystemException that thrown from internal check in query method, and without cause for SQLException that throws preparedStatement.
+    public void updateCoupon(Coupon coupon) throws CouponSystemException {
+        try {
+            couponsDAO.updateCoupon(coupon);
+        } catch (InternalSystemException e) {
+            throw new CouponSystemException("DB error.", e);
+        } catch (SQLException e) {
+            throw new CouponSystemException("DB error");
+        }
+    }
+
+//Fixme
     public void deleteCoupon(int couponId) throws CouponSystemException {
         try {
             couponsDAO.deleteCoupon(couponId);
+            //couponsDAO.deleteCouponPurchase(); // customerID ??? Holds customersList?
         } catch (SQLException | InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);
         }
@@ -77,20 +104,20 @@ public class CompanyFacade extends ClientFacade{
 
     public List<Coupon> getCompanyCoupons(double maxPrice) throws CouponSystemException {
         try {
-            return couponsDAO.getCouponListByMaxPrice(maxPrice);
+            return couponsDAO.getCouponListLessThanMaxPrice(maxPrice);
         } catch (SQLException e) {
             throw new CouponSystemException("DB error");
         }
     }
 
-    public Company getCompanyDetails() throws CouponSystemException { // TODO without parameter how will we know what Company to return???
+    public Company getCompanyDetails() throws CouponSystemException { // We know what CompanyId because it that connected
         Company company;
         try {
             company = companiesDAO.getOneCompany(companyId);
-        } catch (SQLException e) {
-            throw new CouponSystemException("DB error");
         } catch (InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);
+        } catch (SQLException e) {
+            throw new CouponSystemException("DB error");
         }
         return company;
     }

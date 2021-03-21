@@ -3,8 +3,8 @@ package java_beans_entities;
 import java.util.ArrayList;
 
 public class Company {
-    private int id;
-    private String name;
+    private final int id; // לא ניתן לעדקן קוד ושם החברה
+    private final String name;
     private String email;
     private String password;
     private ArrayList<Coupon> coupons; // Without new here
@@ -17,11 +17,11 @@ public class Company {
         this.password = password;
     }
 
-    public Company(String name, String email, String password) {
+    /*public Company(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
-    }
+    }*/
 
     public Company(int id, String name, String email, String password, ClientStatus clientStatus) {
         this.id = id;
@@ -43,16 +43,8 @@ public class Company {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getEmail() {

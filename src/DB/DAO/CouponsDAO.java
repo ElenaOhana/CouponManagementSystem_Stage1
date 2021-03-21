@@ -25,5 +25,9 @@ public interface CouponsDAO {
 
     List<Coupon> getCouponListByCategory(Category category) throws SQLException;
 
-    List<Coupon> getCouponListByMaxPrice(double maxPrice) throws SQLException;
+    List<Coupon> getCouponListLessThanMaxPrice(double maxPrice) throws SQLException;
+
+    List<Coupon> getCustomerCouponsByCustomerId(int customerId) throws SQLException;
+
+    List<Coupon> getCompanyCouponsByCompanyId(int companyId) throws SQLException;
 }

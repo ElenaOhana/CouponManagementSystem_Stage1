@@ -3,6 +3,7 @@ package DB.DAO;
 import DB.ConnectionPool;
 import exceptions.InternalSystemException;
 import java_beans_entities.ClientStatus;
+import java_beans_entities.Coupon;
 import java_beans_entities.Customer;
 
 import java.sql.Connection;
@@ -16,7 +17,7 @@ public class CustomersDBDAO implements CustomersDAO {
     private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
     @Override
-    public boolean isCustomerExists(String email, String password) throws SQLException {
+    public boolean isCustomerExists(String email, String password) throws SQLException, InternalSystemException {
         final String queryTempGetEmailAndPassword = "SELECT `email`, `password` FROM `customers` WHERE `email` = ? AND `password` = ?";
         Connection connection = connectionPool.getConnection();
         boolean result = false;
@@ -29,8 +30,10 @@ public class CustomersDBDAO implements CustomersDAO {
                 if (resultSet.next()) {
                     if (emailsEquals && passwordsEquals) {
                         result = true;
+                    } else {
+                        throw new InternalSystemException(" Wrong credentials.");
                     }
-                } // TODO like at HM
+                }
             }
         } finally {
             connectionPool.restoreConnection(connection);
@@ -119,7 +122,7 @@ public class CustomersDBDAO implements CustomersDAO {
     @Override
     public Customer getOneCustomer(int customerID) throws SQLException, InternalSystemException {
         Connection connection = connectionPool.getConnection();
-        Customer customer = null;
+        Customer customer;
         final String queryTempGetCustomerByID = "SELECT * FROM `customers` WHERE `id` = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetCustomerByID)) {
             preparedStatement.setInt(1, customerID);
@@ -141,5 +144,29 @@ public class CustomersDBDAO implements CustomersDAO {
             connectionPool.restoreConnection(connection);
         }
         return customer;
+    }
+
+    @Override
+    public int loginCustomer(String email, String password) throws SQLException {
+        final String queryTempGetIdByEmailAndPassword = "SELECT `id` FROM `customers` WHERE `Email` = ? AND `Password` = ?";
+        Connection connection = connectionPool.getConnection();
+        int id = 0;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetIdByEmailAndPassword)) {
+            preparedStatement.setString(1, email);
+            preparedStatement.setString(2, password);
+            preparedStatement.executeQuery();
+            try (ResultSet resultSet = preparedStatement.getResultSet()) {
+                boolean emailsEquals = resultSet.getString("Email").equalsIgnoreCase(email);
+                boolean passwordsEquals = resultSet.getString("Password").equalsIgnoreCase(password);
+                if (resultSet.next()) {
+                    if (emailsEquals && passwordsEquals) {
+                        id = resultSet.getInt("id");
+                    }
+                }
+            }
+        } finally {
+            connectionPool.restoreConnection(connection);
+        }
+        return id;
     }
 }

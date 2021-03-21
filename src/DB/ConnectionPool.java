@@ -24,21 +24,21 @@ public class ConnectionPool { // ConnectionPool is Singleton
         return instance;
     }
 
+    private ConnectionPool() { //private Constructor
+        this.freeConnections = new HashSet<>(MAX_AMOUNT_CONNECTIONS);
+        for (int i = 0; i < MAX_AMOUNT_CONNECTIONS; i++) {
+            freeConnections.add(getConnectionToFillThePool());
+        }
+    }
+
     private Connection getConnectionToFillThePool(){
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
-            e.printStackTrace(); //todo runtime exception
+            throw new RuntimeException("DB connection error");
         }
         return connection;
-    }
-
-    private ConnectionPool() { //Constructor
-        this.freeConnections = new HashSet<>(MAX_AMOUNT_CONNECTIONS);
-        for (int i = 0; i < MAX_AMOUNT_CONNECTIONS; i++) {
-            freeConnections.add(getConnectionToFillThePool());
-        }
     }
 
     public synchronized Connection getConnection() {
@@ -47,7 +47,7 @@ public class ConnectionPool { // ConnectionPool is Singleton
             try {
                 wait();  //todo synchronized only a small block?
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                throw new RuntimeException("DB synchronized connection error");
             }
         } else {
             connection = freeConnections.iterator().next(); // get from set
@@ -78,7 +78,7 @@ public class ConnectionPool { // ConnectionPool is Singleton
                 try {
                     freeConnection.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();// fixme
+                    throw new RuntimeException("DB close connection error");
                 }
             }
         }
