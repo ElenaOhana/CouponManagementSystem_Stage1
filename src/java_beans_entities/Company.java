@@ -17,12 +17,6 @@ public class Company {
         this.password = password;
     }
 
-    /*public Company(String name, String email, String password) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-    }*/
-
     public Company(int id, String name, String email, String password, ClientStatus clientStatus) {
         this.id = id;
         this.name = name;
