@@ -13,7 +13,7 @@ public interface CouponsDAO {
 
     void updateCoupon(Coupon coupon) throws SQLException, InternalSystemException;
 
-    void deleteCoupon(int couponID) throws SQLException, InternalSystemException;
+    void deleteCouponAsChangeStatus(int couponID) throws SQLException, InternalSystemException;
 
     List<Coupon> getAllCoupons() throws SQLException;
 

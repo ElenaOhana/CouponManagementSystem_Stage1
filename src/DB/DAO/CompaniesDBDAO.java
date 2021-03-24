@@ -78,7 +78,7 @@ public class CompaniesDBDAO implements CompaniesDAO {
     }
 
     @Override
-    public void deleteCompany(int companyID) throws SQLException, InternalSystemException { // I do not delete object, I add status inactive instead // TODO  to add status inactive to ClientStatus after deleting
+    public void deleteCompanyAsChangeStatus(int companyID) throws SQLException, InternalSystemException { // I do not delete object, I add status inactive instead // TODO  to add status inactive to ClientStatus after deleting
         Connection connection = connectionPool.getConnection();
         final String queryTempChangeCompanyStatus = "UPDATE `Companies` SET `Status` = `inactive` WHERE `id` = ?"; //TODO TO CHECK `inactive`
         /*//For transaction:

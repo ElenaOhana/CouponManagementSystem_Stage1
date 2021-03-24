@@ -15,7 +15,7 @@ public interface CompaniesDAO {
 
      void updateCompany(Company company) throws SQLException, InternalSystemException;
 
-     void deleteCompany(int companyID) throws SQLException, InternalSystemException;
+     void deleteCompanyAsChangeStatus(int companyID) throws SQLException, InternalSystemException;
 
      List<Company> getAllCompanies() throws SQLException;
 

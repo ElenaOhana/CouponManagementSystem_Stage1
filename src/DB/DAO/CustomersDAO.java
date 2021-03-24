@@ -15,7 +15,7 @@ public interface CustomersDAO {
 
      void updateCustomer(Customer customer) throws SQLException, InternalSystemException;
 
-     void deleteCustomer(int customerID) throws SQLException, InternalSystemException;
+     void deleteCustomerAsChangeStatus(int customerID) throws SQLException, InternalSystemException;
 
      List<Customer> getAllCustomers() throws SQLException;
 

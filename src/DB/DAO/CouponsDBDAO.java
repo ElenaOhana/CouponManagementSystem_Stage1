@@ -63,7 +63,7 @@ public class CouponsDBDAO implements CouponsDAO {
     }
 
     @Override
-    public void deleteCoupon(int couponID) throws SQLException, InternalSystemException {
+    public void deleteCouponAsChangeStatus(int couponID) throws SQLException, InternalSystemException {
         Connection connection = connectionPool.getConnection();
         final String queryTempChangeCouponStatusByCouponId = "UPDATE `coupons` SET `Status` = `unable` WHERE `id` = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempChangeCouponStatusByCouponId)) {
