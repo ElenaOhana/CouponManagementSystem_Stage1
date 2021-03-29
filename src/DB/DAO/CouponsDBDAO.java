@@ -236,9 +236,9 @@ public class CouponsDBDAO implements CouponsDAO {
         }
     }
 
-    @Override
+    @Override //FIXME join: "SELECT * FROM coupons as c join customers_vs_coupons as `cvc` on `cvc.CustomerId` = ?"
     public List<Coupon> getCustomerCouponsByCustomerId(int customerId) throws SQLException {
-        Connection connection = connectionPool.getConnection(); // TODO to check join Java - צריך גרשיים על אלייס??
+        Connection connection = connectionPool.getConnection(); // TODO to check join Java - צריך גרשיים על אלייס- NO??
         final String queryTempGetCouponListByCustomerId = "SELECT * FROM coupons as c join on customers_vs_coupons as `cvc` WHERE `cvc.CustomerId` = ? AND `cvc.couponId` = c.id";
         Coupon coupon;
         List<Coupon> couponList = new ArrayList<>();
