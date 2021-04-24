@@ -1,51 +1,19 @@
 package DB.DAO;
 
 import DB.ConnectionPool;
-import exceptions.CouponSystemException;
 import exceptions.InternalSystemException;
 import java_beans_entities.ClientStatus;
 import java_beans_entities.Company;
-import java_beans_entities.Coupon;
-import java_beans_entities.CouponStatus;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CompaniesDBDAO implements CompaniesDAO {
     private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
-
-/*
     @Override
     public boolean isCompanyExists(String email, String password) throws SQLException, InternalSystemException {
-        final String queryTempGetEmailAndPassword = "SELECT `Email`, `Password` FROM `Companies` WHERE `Email` = ? AND `Password` = ?";
-        Connection connection = connectionPool.getConnection();
-        boolean result = false;
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetEmailAndPassword)) {
-            preparedStatement.setString(1, email);
-            preparedStatement.setString(2, password);
-            preparedStatement.executeQuery();
-            try (ResultSet resultSet = preparedStatement.getResultSet()) { //TODO the check
-                boolean emailsEquals = resultSet.getString("Email").equalsIgnoreCase(email);
-                boolean passwordsEquals = resultSet.getString("Password").equalsIgnoreCase(password);
-                if (resultSet.next()) {
-                    if (emailsEquals && passwordsEquals) {
-                        result = true;
-                    } else {
-                        throw new InternalSystemException(" Wrong credentials.");
-                    }
-                }
-            }
-        } finally {
-            connectionPool.restoreConnection(connection);
-        }
-        return result;
-    }*/
-
-    @Override
-    public boolean isCompanyExists(String email, String password) throws SQLException, InternalSystemException { // TODO Починила
         final String queryTempGetPasswordByEmail = "SELECT `Email`, `Password` FROM `Companies` WHERE `Email` = ?";
         Connection connection = connectionPool.getConnection();
         boolean result = false;

@@ -2,7 +2,6 @@ package DB.DAO;
 
 import exceptions.InternalSystemException;
 import java_beans_entities.Company;
-import java_beans_entities.Coupon;
 
 import java.sql.SQLException;
 import java.util.List;

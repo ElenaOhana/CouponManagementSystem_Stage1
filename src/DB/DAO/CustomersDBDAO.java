@@ -3,7 +3,6 @@ package DB.DAO;
 import DB.ConnectionPool;
 import exceptions.InternalSystemException;
 import java_beans_entities.ClientStatus;
-import java_beans_entities.Coupon;
 import java_beans_entities.Customer;
 
 import java.sql.Connection;

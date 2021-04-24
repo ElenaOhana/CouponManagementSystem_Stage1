@@ -21,9 +21,10 @@ public class CouponSystemManager { // is Singleton
     private void initThread() {
         dailyJob = new Thread(new CouponExpirationDailyJob());
         dailyJob.start();
-
         //dailyJob.setDaemon(true);
     }
-    /* Job- ה. הפסקת ה
-.)ConnectionPool- של ה closeAllConnections קריאה לפונקציה ( Connections- ו. סגירת כל*/
+
+    public void closeAllConnections() {
+        connectionPool.closeAllConnections();
+    }
 }

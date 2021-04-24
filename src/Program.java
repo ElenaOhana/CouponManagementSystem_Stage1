@@ -1,14 +1,12 @@
-import tests.Test2;
+import tests.Test;
 
 public class Program {
     public static void main(String[] args) {
         CouponSystemManager couponSystemManager = CouponSystemManager.getInstance();
 
-        Test2.testAll();
-
-
+        Test.testAll();
 
         couponSystemManager.dailyJob.stop();//But Daemon Thread ends by himself after "program" finish
-        couponSystemManager.connectionPool.closeAllConnections();
+        couponSystemManager.closeAllConnections();
     }
 }

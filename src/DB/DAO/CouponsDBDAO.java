@@ -1,7 +1,6 @@
 package DB.DAO;
 
 import DB.ConnectionPool;
-import com.sun.deploy.net.MessageHeader;
 import exceptions.InternalSystemException;
 import java_beans_entities.Category;
 import java_beans_entities.Coupon;
@@ -221,8 +220,11 @@ public class CouponsDBDAO implements CouponsDAO {
     @Override
     public void deleteCouponPurchase(int customerID, int couponId) throws SQLException, InternalSystemException {
         Connection connection = connectionPool.getConnection();
-        final String queryTempChangeCouponStatusByCouponIdAndCustomerID = "UPDATE `coupons` SET `Status` = `unable` WHERE `id` = (" +
+        final String queryTempChangeCouponStatusByCouponIdAndCustomerID = "UPDATE `coupons` SET `Status` = `unable` WHERE `id` = (" + //TODO check UPDATE `customers_vs_coupons`
                 "SELECT `couponId` FROM `customers_vs_coupons` WHERE `couponId`=? AND `customerId` = ?)";
+         //"UPDATE `customers_vs_coupons` SET `WHAT???` = `unable` WHERE `id` = (" + //TODO check UPDATE `customers_vs_coupons` - If CASCADE works =>
+        //                "SELECT `couponId` FROM `customers_vs_coupons` WHERE `couponId`=? AND `customerId` = ?)"
+
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempChangeCouponStatusByCouponIdAndCustomerID)) {
             preparedStatement.setInt(1, couponId);
             preparedStatement.setInt(2, customerID);

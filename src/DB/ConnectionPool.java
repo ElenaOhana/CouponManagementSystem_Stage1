@@ -57,7 +57,7 @@ public class ConnectionPool { // ConnectionPool is Singleton
         return connection;
     }
 
-    public synchronized void restoreConnection(Connection connection) { // todo i don't CLOSE() CONNECTION IN QUERY, if we need to close them anywhere?
+    public synchronized void restoreConnection(Connection connection) {
         if (usedConnections.contains(connection)) { // I check here if the connection that I return is the same connection that I received.
             if (freeConnections.size() < MAX_AMOUNT_CONNECTIONS) { // todo I don't sure if i need this check
                 freeConnections.add(connection);
@@ -66,7 +66,7 @@ public class ConnectionPool { // ConnectionPool is Singleton
             } catch (SQLException e) {
                 e.printStackTrace();
             }*/
-                usedConnections.remove(connection); // TODO check after Threads addition
+                usedConnections.remove(connection);
                 notify(); // TODO synchronized only a small block?
             }
         }
