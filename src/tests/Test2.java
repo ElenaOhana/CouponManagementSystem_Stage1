@@ -26,13 +26,19 @@ public class Test2 {
         CompanyFacade companyFacade;
         try {
             companyFacade = (CompanyFacade) LoginManager.login("companyA@gmail.com", "1111", ClientType.COMPANY);
-            /*Coupon coupon = addCouponWithWrongCompanyId();
-            companyFacade.addCoupon(coupon);*/
+            Coupon coupon = addCouponWithWrongCompanyId();
+            /*if (companyFacade != null) {
+                companyFacade.addCoupon(coupon);
+            }*/
 
             Coupon coupon2 = addCouponWithRightCompanyId();
-            companyFacade.addCoupon(coupon2);
+            if (companyFacade != null) {
+                companyFacade.addCoupon(coupon2);
+            }
 
-            companyFacade.updateCoupon(coupon2);
+            if (companyFacade != null) {
+                companyFacade.updateCoupon(coupon2);
+            }
         } catch ( CouponSystemException e) {
             throw new TestException("Company Id is 3 instead of 1.", e);
         }
