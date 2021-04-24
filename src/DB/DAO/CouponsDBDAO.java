@@ -17,7 +17,7 @@ public class CouponsDBDAO implements CouponsDAO {
 
     @Override
     public void addCoupon(Coupon coupon) throws SQLException, InternalSystemException {
-        Connection connection = connectionPool.getConnection();  // There is a default `able` status for `Coupons` table.
+        Connection connection = connectionPool.getConnection();  // There is a default `ABLE` status for `Coupons` table.
         final String queryTempInsertCoupon = "INSERT INTO `Coupons` (`title`, `Description`, `StartDate`, `EndDate`, `Amount`, `Price`, `IMAGE`, `CompanyId`, `CategoryId`) VALUES (?,?,?,?,?,?,?,?,?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempInsertCoupon)) {
             preparedStatement.setString(1, coupon.getTitle());
@@ -41,7 +41,7 @@ public class CouponsDBDAO implements CouponsDAO {
     @Override
     public void updateCoupon(Coupon coupon) throws SQLException, InternalSystemException {
         Connection connection = connectionPool.getConnection();
-        final String queryTempUpdateCoupon = "UPDATE `coupons` SET `title`=?, `Description`=?, `StartDate`=?, `EndDate`=?, `Amount`=?, `Price`=?, `IMAGE`=?, `CategoryId`=?, WHERE `id` = ?";
+        final String queryTempUpdateCoupon = "UPDATE `coupons` SET `title`=?, `Description`=?, `StartDate`=?, `EndDate`=?, `Amount`=?, `Price`=?, `IMAGE`=?, `CategoryId`=? WHERE `id` = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempUpdateCoupon)) {
             preparedStatement.setInt(9, coupon.getId());
             preparedStatement.setString(1, coupon.getTitle());
@@ -51,7 +51,6 @@ public class CouponsDBDAO implements CouponsDAO {
             preparedStatement.setInt(5, coupon.getAmount());
             preparedStatement.setDouble(6, coupon.getPrice());
             preparedStatement.setString(7, coupon.getImage());
-            //preparedStatement.setInt(8, coupon.getCompanyId());// It isn't possible to update CompanyId
             preparedStatement.setInt(8, coupon.getCategoryID());
             int row = preparedStatement.executeUpdate();
             if (row == 0) {
@@ -273,7 +272,7 @@ public class CouponsDBDAO implements CouponsDAO {
         Connection connection = connectionPool.getConnection();
         Coupon coupon;
         List<Coupon> couponList = new ArrayList<>();
-        String queryTempGetCompanyCoupons = "SELECT * FROM `companies` join on `coupons` WHERE `coupons.companyId` = ?";// TODO to check join Java
+        String queryTempGetCompanyCoupons = "SELECT * FROM companies join coupons on companyId = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetCompanyCoupons)) {
             preparedStatement.setInt(1, companyID);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -286,7 +285,7 @@ public class CouponsDBDAO implements CouponsDAO {
                     LocalDateTime endDate = resultSet.getTimestamp("endDate").toLocalDateTime();
                     int amount = resultSet.getInt("amount");
                     double price = resultSet.getDouble("price");
-                    String status = resultSet.getString("status");
+                    String status = resultSet.getString("coupons.status");
                     String image = resultSet.getString("image");
                     CouponStatus couponStatus = CouponStatus.valueOf(status);
                     coupon = new Coupon(id, companyID,categoryId,title,description,startDate, endDate, amount, price,image, couponStatus);

@@ -43,7 +43,8 @@ public class Coupon {
         this.image = image;
     }
 
-    public Coupon(int id, int companyId, int categoryID, String title, String description, LocalDateTime startDate, LocalDateTime endDate, int amount, double price, String image, CouponStatus couponStatus) {
+    public Coupon(int id, int companyId, int categoryID, String title, String description,
+                  LocalDateTime startDate, LocalDateTime endDate, int amount, double price, String image, CouponStatus couponStatus) {
         this.id = id;
         this.companyId = companyId;
         this.categoryID = categoryID;

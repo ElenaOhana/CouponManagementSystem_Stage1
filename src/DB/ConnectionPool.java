@@ -15,7 +15,7 @@ public class ConnectionPool { // ConnectionPool is Singleton
     String username = "root";
     String password = "";
     private final Set<Connection> freeConnections;
-    private Set<Connection> usedConnections;
+    private Set<Connection> usedConnections = new HashSet<>();
 
     public static ConnectionPool getInstance() {
         if (instance == null) {

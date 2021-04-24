@@ -6,6 +6,13 @@ public class CouponSystemManager { // is Singleton
     ConnectionPool connectionPool;
     Thread dailyJob;
 
+    public static CouponSystemManager getInstance() {
+        if (instance == null) {
+            instance = new CouponSystemManager();
+        }
+        return instance;
+    }
+
     private CouponSystemManager() {
         initThread();
         connectionPool = ConnectionPool.getInstance();
@@ -14,20 +21,9 @@ public class CouponSystemManager { // is Singleton
     private void initThread() {
         dailyJob = new Thread(new CouponExpirationDailyJob());
         dailyJob.start();
-        dailyJob.setDaemon(true);
+
+        //dailyJob.setDaemon(true);
     }
-
-    public static CouponSystemManager getInstance() {
-        if (instance == null) {
-            instance = new CouponSystemManager();
-        }
-        return instance;
-    }
-
-
-
-
-
     /* Job- ה. הפסקת ה
 .)ConnectionPool- של ה closeAllConnections קריאה לפונקציה ( Connections- ו. סגירת כל*/
 }

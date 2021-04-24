@@ -1,6 +1,7 @@
 package exceptions;
 
 public class InternalSystemException extends CouponSystemException{
+
     public InternalSystemException() {
     }
 

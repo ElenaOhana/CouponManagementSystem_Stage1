@@ -16,6 +16,8 @@ import java.util.List;
 public class CompaniesDBDAO implements CompaniesDAO {
     private ConnectionPool connectionPool = ConnectionPool.getInstance();
 
+
+/*
     @Override
     public boolean isCompanyExists(String email, String password) throws SQLException, InternalSystemException {
         final String queryTempGetEmailAndPassword = "SELECT `Email`, `Password` FROM `Companies` WHERE `Email` = ? AND `Password` = ?";
@@ -37,6 +39,32 @@ public class CompaniesDBDAO implements CompaniesDAO {
                 }
             }
         } finally {
+            connectionPool.restoreConnection(connection);
+        }
+        return result;
+    }*/
+
+    @Override
+    public boolean isCompanyExists(String email, String password) throws SQLException, InternalSystemException { // TODO Починила
+        final String queryTempGetPasswordByEmail = "SELECT `Email`, `Password` FROM `Companies` WHERE `Email` = ?";
+        Connection connection = connectionPool.getConnection();
+        boolean result = false;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetPasswordByEmail)) {
+            preparedStatement.setString(1, email);
+            preparedStatement.execute();
+
+            ResultSet resultSet = preparedStatement.getResultSet();
+            if (resultSet.next()) {
+                if (resultSet.getString("Password").equalsIgnoreCase(password)) {
+                    result = true;
+                } else if (!resultSet.getString("Password").equalsIgnoreCase(password)) {
+                    throw new InternalSystemException(" Wrong credentials.");
+                }
+            } else {
+                throw new InternalSystemException(" Wrong credentials.");
+            }
+        }
+        finally {
             connectionPool.restoreConnection(connection);
         }
         return result;
@@ -215,21 +243,18 @@ public class CompaniesDBDAO implements CompaniesDAO {
     }
 
     @Override
-    public int loginCompany(String email, String password) throws SQLException {
-        final String queryTempGetIdByEmailAndPassword = "SELECT `id` FROM `Companies` WHERE `Email` = ? AND `Password` = ?";
+    public int loginCompany(String email) throws SQLException {
+        final String queryTempGetIdByEmail = "SELECT `id` FROM `Companies` WHERE Email = ?";
         Connection connection = connectionPool.getConnection();
         int id = 0;
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetIdByEmailAndPassword)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetIdByEmail)) {
             preparedStatement.setString(1, email);
-            preparedStatement.setString(2, password);
-            preparedStatement.executeQuery();
+            preparedStatement.execute();
             try (ResultSet resultSet = preparedStatement.getResultSet()) {
-                boolean emailsEquals = resultSet.getString("Email").equalsIgnoreCase(email);
-                boolean passwordsEquals = resultSet.getString("Password").equalsIgnoreCase(password);
                 if (resultSet.next()) {
-                    if (emailsEquals && passwordsEquals) {
                         id = resultSet.getInt("id");
-                    }
+                   /* if (resultSet.getString("Email").equalsIgnoreCase(email)) { // TODO ПОЧЕМУ С ЭТОЙ ПРОВЕРКОЙ НЕ РАБОТАЕТ?
+                    }*/
                 }
             }
         } finally {

@@ -12,7 +12,7 @@ import java.util.List;
 public class CompanyFacade extends ClientFacade {
     private int companyId;
 
-    public CompanyFacade(int companyId){
+    public CompanyFacade(int companyId) {
         this.companyId = companyId;
     }
 
@@ -21,7 +21,7 @@ public class CompanyFacade extends ClientFacade {
         try {
             loginTrue = companiesDAO.isCompanyExists(email, password);
         } catch (SQLException e) {
-            throw new CouponSystemException("DB error");
+            throw new CouponSystemException("DB error", e);//TODO Company doesn't exist
         } catch (InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);
         }
@@ -33,9 +33,9 @@ public class CompanyFacade extends ClientFacade {
         try {
             if (companiesDAO.isCompanyExists(email, password)) {
                 try {
-                    companyId = companiesDAO.loginCompany(email, password);
+                    companyId = companiesDAO.loginCompany(email);
                 } catch (SQLException e) {
-                    throw new CouponSystemException("DB error.");
+                    throw new CouponSystemException("DB error.", e);
                 }
             }
         } catch (SQLException e) {
@@ -46,39 +46,44 @@ public class CompanyFacade extends ClientFacade {
         return companyId;
     }
 
-    //TODO  if need the transaction here???
     public void addCoupon(Coupon coupon) throws CouponSystemException {
         try {
-            if (coupon.getCompanyId() == companyId) { // TODO to check in all places where we (have to check Login) if the coupons.companyId == companyId
-                List<Coupon> couponList = couponsDAO.getCompanyCouponsByCompanyId(companyId);
-                if (!couponList.contains(coupon)) {
-                    couponsDAO.addCoupon(coupon);
+            if (coupon != null) {
+                if (coupon.getCompanyId() == companyId) { // TODO to check in all places where we (have to check Login) if the coupons.companyId == companyId
+                    List<Coupon> couponList = couponsDAO.getCompanyCouponsByCompanyId(companyId);
+                    if (!couponList.contains(coupon)) {
+                        couponsDAO.addCoupon(coupon);
+                    } else {
+                        throw new CouponSystemException("An error has occurred. The coupon already exists.");
+                    }
                 } else {
-                    throw new CouponSystemException("An error has occurred. The coupon exist already.");
+                    throw new CouponSystemException("The action is illegal");
                 }
-            } else {
-                throw new CouponSystemException("The action is illegal");
             }
         } catch (SQLException e) {
-            throw new CouponSystemException("DB error");
+            throw new CouponSystemException("DB error", e);
         }
     }
 
     //Documentation: I do 2 catch blocks: with cause for InternalSystemException that thrown from internal check in query method, and without cause for SQLException that throws preparedStatement.
     public void updateCoupon(Coupon coupon) throws CouponSystemException {
         try {
-            couponsDAO.updateCoupon(coupon);
+            if (coupon != null) {
+                couponsDAO.updateCoupon(coupon);
+            }
         } catch (InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);
         } catch (SQLException e) {
-            throw new CouponSystemException("DB error");
+            throw new CouponSystemException("DB error", e);
         }
     }
 
-//Fixme
+    //Fixme
     public void deleteCoupon(int couponId) throws CouponSystemException {
         try {
             couponsDAO.deleteCouponAsChangeStatus(couponId);
+            // todo from tirg
+            deleteCoupon(couponId);
             //couponsDAO.deleteCouponPurchase(); // customerID ??? Holds customersList?
         } catch (SQLException | InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);
