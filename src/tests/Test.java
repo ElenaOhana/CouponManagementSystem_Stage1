@@ -1,7 +1,7 @@
 package tests;
 
-import DB.DBManager;
-import businesslogic.facade.CompanyFacade;
+import DB.DBPseudoDataManager;
+import businesslogic.facade.AdminFacade;
 import exceptions.CouponSystemException;
 import exceptions.TestException;
 import java_beans_entities.Coupon;
@@ -12,28 +12,34 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Test {
-    //DBManager dbManager = new DBManager();
-
     public static void testAll() {
-        DBManager.dropCreateTables();
+        DBPseudoDataManager.dropCreateTables();
 
         try {
-            adminFacadeTest();
+            facadeTesting();
         } catch (TestException e) {
             e.printStackTrace();
         }
-
     }
 
-    private static void adminFacadeTest() throws TestException {
-        System.out.println("-------------------------------------Admin Facade Test-----------------------------------------");
+    private static void facadeTesting() throws TestException {
+        System.out.println("-------------------------------------Administrator Facade Test-----------------------------------------");
+        try {
+            AdminFacade adminFacade = (AdminFacade) LoginManager.login("admin@admin.com", "admin", ClientType.ADMINISTRATOR);
+            AdminFacade adminFacade1 = (AdminFacade) LoginManager.login("adin@adin.com", "admin", ClientType.ADMINISTRATOR);// Should provide "Wrong admin credentials" error.
+        } catch (CouponSystemException e) {
+            throw new TestException("Wrong admin credentials", e);
+        }
+
+
+        /*System.out.println("-------------------------------------Company Facade Test-----------------------------------------");
         CompanyFacade companyFacade;
         try {
             companyFacade = (CompanyFacade) LoginManager.login("companyA@gmail.com", "1111", ClientType.COMPANY);
             Coupon coupon = addCouponWithWrongCompanyId();
-            /*if (companyFacade != null) {
+            *//*if (companyFacade != null) {
                 companyFacade.addCoupon(coupon);
-            }*/
+            }*//*
 
             Coupon coupon2 = addCouponWithRightCompanyId();
             if (companyFacade != null) {
@@ -45,8 +51,9 @@ public class Test {
             }
         } catch ( CouponSystemException e) {
             throw new TestException("Company Id is 3 instead of 1.", e);
-        }
+        }*/
 
+        //System.out.println("-------------------------------------Customer Facade Test-----------------------------------------");
     }
 
     private static Coupon addCouponWithRightCompanyId() throws TestException{
@@ -62,7 +69,7 @@ public class Test {
         Coupon coupon = new Coupon(1, 3, 3, "Nofesh", "Spa in Galil", startDate, endDate, 30, 300, "image");
         return coupon;
     }
-        //LocalDateTime endDate2 = LocalDateTime.now();
+    //LocalDateTime endDate2 = LocalDateTime.now();
 }
 
 
