@@ -15,7 +15,7 @@ public class ConnectionPool { // ConnectionPool is Singleton
     String username = "root";
     String password = "";
     private final Set<Connection> freeConnections;
-    private Set<Connection> usedConnections = new HashSet<>();
+    private final Set<Connection> usedConnections = new HashSet<>(MAX_AMOUNT_CONNECTIONS);
 
     public static ConnectionPool getInstance() {
         if (instance == null) {
@@ -45,13 +45,13 @@ public class ConnectionPool { // ConnectionPool is Singleton
         Connection connection = null;
         if (freeConnections.isEmpty()) {
             try {
-                wait();  //todo synchronized only a small block?
+                wait();
             } catch (InterruptedException e) {
                 throw new RuntimeException("DB synchronized connection error");
             }
         } else {
             connection = freeConnections.iterator().next(); // get from set
-            usedConnections.add(connection); //
+            usedConnections.add(connection);
             freeConnections.remove(connection);
         }
         return connection;
@@ -59,7 +59,7 @@ public class ConnectionPool { // ConnectionPool is Singleton
 
     public synchronized void restoreConnection(Connection connection) {
         if (usedConnections.contains(connection)) { // I check here if the connection that I return is the same connection that I received.
-            if (freeConnections.size() < MAX_AMOUNT_CONNECTIONS) { // todo I don't sure if i need this check
+            if (freeConnections.size() < MAX_AMOUNT_CONNECTIONS) {
                 freeConnections.add(connection);
           /*  try {
                 connection.close();

@@ -15,7 +15,7 @@ public class DBPseudoDataManager {
     static final String queryTempDropTableCoupons = "DROP TABLE IF EXISTS `coupon_management_system`.`coupons`";
     static final String queryTempDropTableCustomersVSCoupons = "DROP TABLE IF EXISTS `coupon_management_system`.`customers_vs_coupons`";
 
-    static final String queryTempCreateTableCompanies = "CREATE TABLE `coupon_management_system`.`companies` (\n" +
+    static final String queryTempCreateTableCompanies = "CREATE TABLE IF NOT EXISTS`coupon_management_system`.`companies` (\n" +
             "\t`ID` INT NOT NULL AUTO_INCREMENT,\n" +
             "\t`Name` VARCHAR(45) NULL,\n" +
             "\t`Email` VARCHAR(45) NULL,\n" +
@@ -25,13 +25,13 @@ public class DBPseudoDataManager {
             "\t UNIQUE INDEX `Email_UNIQUE` (`Email` ASC),\n" +
             "\t UNIQUE INDEX `Name_UNIQUE` (`Name` ASC));";
 
-    static final String queryTempCreateTableCategories = "CREATE TABLE `coupon_management_system`.`categories`(\n" +
+    static final String queryTempCreateTableCategories = "CREATE TABLE IF NOT EXISTS`coupon_management_system`.`categories`(\n" +
             "\t`Id` INT NOT NULL AUTO_INCREMENT,\n" +
             "\t`FirstName` VARCHAR(45) NOT NULL,\n" +
             "\t PRIMARY KEY (`Id`)\n" +
             ");";
 
-    static final String queryTempCreateTableCustomers = "CREATE TABLE `coupon_management_system`.`customers` (\n" +
+    static final String queryTempCreateTableCustomers = "CREATE TABLE IF NOT EXISTS`coupon_management_system`.`customers` (\n" +
             "  `Id` INT NOT NULL AUTO_INCREMENT,\n" +
             "  `FirstName` VARCHAR(45) NULL,\n" +
             "  `LastName` VARCHAR(45) NULL,\n" +
@@ -41,7 +41,7 @@ public class DBPseudoDataManager {
             "  PRIMARY KEY (`Id`),\n" +
             "  UNIQUE INDEX `Email_UNIQUE` (`Email` ASC));";
 
-    static final String queryTempCreateTableCoupons = "CREATE TABLE `coupon_management_system`.`coupons` (\n" +
+    static final String queryTempCreateTableCoupons = "CREATE TABLE IF NOT EXISTS`coupon_management_system`.`coupons` (\n" +
             "  `Id` INT NOT NULL AUTO_INCREMENT,\n" +
             "  `Title` VARCHAR(45) NOT NULL,\n" +
             "  `Description` VARCHAR(45) NOT NULL,\n" +
@@ -67,7 +67,7 @@ public class DBPseudoDataManager {
             "    ON DELETE CASCADE\n" +
             "    ON UPDATE CASCADE);";
 
-    static final String queryTempCreateTableCustomersVSCoupons = "CREATE TABLE `coupon_management_system`.`customers_vs_coupons` (\n" +
+    static final String queryTempCreateTableCustomersVSCoupons = "CREATE TABLE IF NOT EXISTS`coupon_management_system`.`customers_vs_coupons` (\n" +
             "  `CustomerId` INT NOT NULL,\n" +
             "  `CouponId` INT NOT NULL,\n" +
             "  PRIMARY KEY (`CustomerId`, `CouponId`),\n" +

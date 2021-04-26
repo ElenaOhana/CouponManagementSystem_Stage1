@@ -81,7 +81,7 @@ public class CustomersDBDAO implements CustomersDAO {
     public void deleteCustomerAsChangeStatus(int customerID) throws SQLException, InternalSystemException { // I do not delete object, I add status inactive instead
         // TODO  to add status inactive to ClientStatus after deleting
         Connection connection = connectionPool.getConnection();
-        final String queryTempChangeCustomerStatus = "UPDATE `customers` SET `Status` = `inactive` WHERE `id` = ?"; //TODO TO CHECK `inactive`
+        final String queryTempChangeCustomerStatus = "UPDATE `customers` SET `Status` = `INACTIVE` WHERE `id` = ?"; //TODO TO CHECK `inactive`
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempChangeCustomerStatus)) {
             preparedStatement.setInt(1, customerID);
             int row = preparedStatement.executeUpdate();

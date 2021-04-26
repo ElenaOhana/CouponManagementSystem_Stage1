@@ -4,6 +4,7 @@ import DB.ConnectionPool;
 import exceptions.InternalSystemException;
 import java_beans_entities.ClientStatus;
 import java_beans_entities.Company;
+import java_beans_entities.Coupon;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -76,7 +77,7 @@ public class CompaniesDBDAO implements CompaniesDAO {
     @Override
     public void deleteCompanyAsChangeStatus(int companyID) throws SQLException, InternalSystemException { // I do not delete object, I add status inactive instead // TODO  to add status inactive to ClientStatus after deleting
         Connection connection = connectionPool.getConnection();
-        final String queryTempChangeCompanyStatus = "UPDATE `Companies` SET `Status` = `inactive` WHERE `id` = ?"; //TODO TO CHECK `inactive`
+        final String queryTempChangeCompanyStatus = "UPDATE `Companies` SET `Status` = `INACTIVE` WHERE `id` = ?"; //TODO TO CHECK `inactive`
         /*//For transaction:
         final String queryTempChangeCouponsStatus = "UPDATE `Coupons` SET `Status` = `unable` WHERE `id` = ?";
         connection.setAutoCommit(false);
@@ -108,6 +109,8 @@ public class CompaniesDBDAO implements CompaniesDAO {
                     ClientStatus clientStatus = ClientStatus.valueOf(status);
                     Company company = new Company(id, name, email, password, clientStatus);
                     companies.add(company);
+                    ArrayList<Coupon> couponsOfCompany = company.getCoupons(); //TODO check in main foreach company.getCoupons()
+                    company.setCoupons(couponsOfCompany);
                 }
             }
         } finally {

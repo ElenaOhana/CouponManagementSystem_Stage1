@@ -63,7 +63,7 @@ public class CouponsDBDAO implements CouponsDAO {
     @Override
     public void deleteCouponAsChangeStatus(int couponID) throws SQLException, InternalSystemException {
         Connection connection = connectionPool.getConnection();
-        final String queryTempChangeCouponStatusByCouponId = "UPDATE `coupons` SET `Status` = `unable` WHERE `id` = ?";
+        final String queryTempChangeCouponStatusByCouponId = "UPDATE `coupons` SET `Status` = `DISABLE` WHERE `id` = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempChangeCouponStatusByCouponId)) {
             preparedStatement.setInt(1, couponID);
             int row = preparedStatement.executeUpdate();
@@ -220,9 +220,9 @@ public class CouponsDBDAO implements CouponsDAO {
     @Override
     public void deleteCouponPurchase(int customerID, int couponId) throws SQLException, InternalSystemException {
         Connection connection = connectionPool.getConnection();
-        final String queryTempChangeCouponStatusByCouponIdAndCustomerID = "UPDATE `coupons` SET `Status` = `unable` WHERE `id` = (" + //TODO check UPDATE `customers_vs_coupons`
+        final String queryTempChangeCouponStatusByCouponIdAndCustomerID = "UPDATE `coupons` SET `Status` = `DISABLE` WHERE `id` = (" + //TODO check UPDATE `customers_vs_coupons`
                 "SELECT `couponId` FROM `customers_vs_coupons` WHERE `couponId`=? AND `customerId` = ?)";
-         //"UPDATE `customers_vs_coupons` SET `WHAT???` = `unable` WHERE `id` = (" + //TODO check UPDATE `customers_vs_coupons` - If CASCADE works =>
+         //"UPDATE `customers_vs_coupons` SET `WHAT???` = `unable` WHERE `id` = (" + //TODO check UPDATE `customers_vs_coupons` - If CASCADE works => MUST WORK ON UPDATE
         //                "SELECT `couponId` FROM `customers_vs_coupons` WHERE `couponId`=? AND `customerId` = ?)"
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempChangeCouponStatusByCouponIdAndCustomerID)) {
@@ -240,7 +240,7 @@ public class CouponsDBDAO implements CouponsDAO {
     @Override //FIXME join: "SELECT * FROM coupons as c join customers_vs_coupons as `cvc` on `cvc.CustomerId` = ?"
     public List<Coupon> getCustomerCouponsByCustomerId(int customerId) throws SQLException {
         Connection connection = connectionPool.getConnection(); // TODO to check join Java - צריך גרשיים על אלייס- NO??
-        final String queryTempGetCouponListByCustomerId = "SELECT * FROM coupons as c join on customers_vs_coupons as `cvc` WHERE `cvc.CustomerId` = ? AND `cvc.couponId` = c.id";
+        final String queryTempGetCouponListByCustomerId = "SELECT * FROM coupons as c join customers_vs_coupons as cvc on `cvc.CustomerId` = ? AND `cvc.couponId` = c.id";
         Coupon coupon;
         List<Coupon> couponList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetCouponListByCustomerId)) {

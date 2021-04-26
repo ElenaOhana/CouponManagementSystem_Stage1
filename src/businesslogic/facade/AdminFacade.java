@@ -7,6 +7,7 @@ import java_beans_entities.Coupon;
 import java_beans_entities.Customer;
 
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -17,12 +18,8 @@ import java.util.Set;
     רכישת קופונים. – Customer .3
      */
 public class AdminFacade extends ClientFacade {
-
-    private final String email = "admin@admin.com";
-    private final String password = "admin";
-
-    private Set<Company> companySet;
-    private Set<Customer> customerSet;
+    private Set<Company> companySet = new HashSet<>();
+    private Set<Customer> customerSet = new HashSet<>();
 
     public AdminFacade() {
     }
@@ -76,7 +73,7 @@ public class AdminFacade extends ClientFacade {
         }
     }
 
-    public void deleteCompany(int companyId) throws CouponSystemException {
+    public void deleteCompanyAsChangeStatus(int companyId) throws CouponSystemException {
         try {
             List<Coupon> couponList = couponsDAO.getCompanyCouponsByCompanyId(companyId);//Delete all coupons that Company created
             for (Coupon coupon : couponList) {
@@ -90,7 +87,67 @@ public class AdminFacade extends ClientFacade {
         }
     }
 
-   /* public List<Company> getAllCompanies() {
+    public List<Company> getAllCompanies() throws CouponSystemException {
+        List<Company> companiesList;
+        try {
+            companiesList = companiesDAO.getAllCompanies(); //I'm return a whole object
+        } catch (SQLException e) {
+                throw new CouponSystemException("DB error.", e);
+        }
+        return companiesList;
+    }
 
-    }*/
+    public Company getOneCompany(int companyID) throws CouponSystemException {
+        Company company;
+        try {
+            company = companiesDAO.getOneCompany(companyID);
+        } catch (SQLException | InternalSystemException e) {
+            throw new CouponSystemException("DB error.", e);
+        }
+        return company;
+    }
+
+    public void addCustomer(Customer customer) throws CouponSystemException {
+        try {
+            customersDAO.addCustomer(customer);
+        } catch (SQLException | InternalSystemException e) {
+            throw new CouponSystemException("DB error.", e);
+        }
+    }
+
+    public void updateCustomer(Customer customer) throws CouponSystemException {
+        try {
+            customersDAO.updateCustomer(customer);
+        } catch (SQLException | InternalSystemException e) {
+            throw new CouponSystemException("DB error.", e);
+        }
+    }
+
+    public void deleteCustomerAsChangeStatus(int customerID) throws CouponSystemException {
+        try {
+            customersDAO.deleteCustomerAsChangeStatus(customerID);
+        } catch (SQLException | InternalSystemException e) {
+            throw new CouponSystemException("DB error.", e);
+        }
+    }
+
+    public List<Customer> getAllCustomers() throws CouponSystemException {
+        List<Customer> customerList;
+        try {
+            customerList = customersDAO.getAllCustomers();
+        } catch (SQLException e) {
+            throw new CouponSystemException("DB error.", e);
+        }
+        return customerList;
+    }
+
+    public Customer getOneCustomer(int customerID) throws CouponSystemException {
+        Customer customer;
+        try {
+            customer = customersDAO.getOneCustomer(customerID);
+        } catch (SQLException | InternalSystemException e) {
+            throw new CouponSystemException("DB error.", e);
+        }
+        return customer;
+    }
 }

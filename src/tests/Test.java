@@ -25,7 +25,7 @@ public class Test {
     private static void facadeTesting() throws TestException {
         System.out.println("-------------------------------------Administrator Facade Test-----------------------------------------");
         try {
-            AdminFacade adminFacade = (AdminFacade) LoginManager.login("admin@admin.com", "admin", ClientType.ADMINISTRATOR);
+            //AdminFacade adminFacade = (AdminFacade) LoginManager.login("admin@admin.com", "admin", ClientType.ADMINISTRATOR);
             AdminFacade adminFacade1 = (AdminFacade) LoginManager.login("adin@adin.com", "admin", ClientType.ADMINISTRATOR);// Should provide "Wrong admin credentials" error.
         } catch (CouponSystemException e) {
             throw new TestException("Wrong admin credentials", e);
