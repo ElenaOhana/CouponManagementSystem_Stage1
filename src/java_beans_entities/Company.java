@@ -3,11 +3,11 @@ package java_beans_entities;
 import java.util.ArrayList;
 
 public class Company {
-    private final int id; // לא ניתן לעדקן קוד ושם החברה
-    private final String name;
+    private int id;
+    private String name;
     private String email;
     private String password;
-    private ArrayList<Coupon> coupons; // Without new here
+    private ArrayList<Coupon> coupons;
     ClientStatus clientStatus = ClientStatus.ACTIVE; // TODO IN DAO: By default clientStatus is ACTIVE, only after call deleteCompany(Company company) method - the clientStatus turns to INACTIVE.
 
     public Company(int id, String name, String email, String password) {

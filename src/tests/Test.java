@@ -28,7 +28,7 @@ public class Test {
             //AdminFacade adminFacade = (AdminFacade) LoginManager.login("admin@admin.com", "admin", ClientType.ADMINISTRATOR);
             AdminFacade adminFacade1 = (AdminFacade) LoginManager.login("adin@adin.com", "admin", ClientType.ADMINISTRATOR);// Should provide "Wrong admin credentials" error.
         } catch (CouponSystemException e) {
-            throw new TestException("Wrong admin credentials", e);
+            throw new TestException("Wrong admin credentials", e); // sout moshno!
         }
 
 
@@ -59,7 +59,7 @@ public class Test {
     private static Coupon addCouponWithRightCompanyId() throws TestException{
         LocalDateTime startDate = LocalDateTime.parse("2021-12-03 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime endDate = LocalDateTime.parse("2021-12-05 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        Coupon coupon = new Coupon(1, 1, 3, "Family hofesh", "Spa with babes", startDate, endDate, 30, 300, "image");
+        Coupon coupon = new Coupon(1, 1, 3, "Family hofesh", "Family spa rest with babes", startDate, endDate, 30, 300, "image");
         return coupon;
     }
 

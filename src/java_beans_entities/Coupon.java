@@ -7,11 +7,11 @@ public class Coupon {
     private int id;
     private int companyId;
     private int categoryID;
-    private String title;// "50 אחוז הנחה על טיפולי ספא"
-    private String description; // "פירוט יותר מדוייק"
+    private String title;
+    private String description;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private int amount; // How much coupons like that we want to sell
+    private int amount;
     private double price;
     private String image;
     CouponStatus couponStatus = CouponStatus.ABLE; // // TODO IN BusinessLogic: only after call boughtCoupon() OR expiredCoupon() method - the clientStatus turns to disable.
