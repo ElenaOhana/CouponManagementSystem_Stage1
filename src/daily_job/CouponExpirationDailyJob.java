@@ -2,19 +2,23 @@ package daily_job;
 
 import DB.DAO.CouponsDAO;
 import DB.DAO.CouponsDBDAO;
-import businesslogic.facade.CompanyFacade;
+import DB.DAO.CustomersDAO;
+import DB.DAO.CustomersDBDAO;
 import exceptions.CouponSystemException;
 import exceptions.InternalSystemException;
 import java_beans_entities.Coupon;
+import java_beans_entities.Customer;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.util.List;
 
 public class CouponExpirationDailyJob implements Runnable {
 
-    private CouponsDAO couponsDAO = new CouponsDBDAO();
+    private CouponsDAO couponsDAO = CouponsDBDAO.getInstance();
+    private CustomersDAO customersDAO = CustomersDBDAO.getInstance();
     private boolean quit = false;
+    private final long MILLISECONDS_IN_DAY = 86400000; // It promise that DailyJob will work ones a day
 
     public CouponExpirationDailyJob() {
     }
@@ -22,24 +26,29 @@ public class CouponExpirationDailyJob implements Runnable {
     @Override
     public void run() {
         while (!quit) {
-            System.out.println("I'm running in the background"); // TODO
-            long localTimePlusFive = LocalTime.now().plusSeconds(0).toNanoOfDay(); // to show that the expired coupons are deleted
-            /*try {
-                Thread.sleep(localTimePlusFive);
-                System.out.println("I'm running in the background after");
-            } catch (InterruptedException e) {
-                throw new RuntimeException("Thread doesn't succeed to sleep");
-            }*/
+            System.out.println("DailyJob is started running in the background");
+
             try {
-                for (Coupon coupon : couponsDAO.getAllCoupons()) {
-                    if (coupon.getEndDate().isBefore(LocalDateTime.now())) {
-                        couponsDAO.deleteCouponAsChangeStatus(coupon.getId());
-                        //couponsDAO.deleteCouponPurchase();// TODO how do i get to customer id here?? TO CHECK CASCADE ))) => DOESN'T NEED couponsDAO.deleteCouponPurchase();
-                        System.out.println("Expired coupons are deleted");
+                for (Customer customer : customersDAO.getAllCustomers()) {
+                    List<Coupon> couponList = customer.getCoupons();
+                    int customerId = customer.getId();
+                    for (Coupon coupon : couponList) {
+                        int couponId = coupon.getId();
+                        if (coupon.getEndDate().isBefore(LocalDateTime.now())) {
+                            couponsDAO.deleteCouponAsChangeStatus(couponId);
+                            couponsDAO.deleteCouponPurchase(customerId, couponId);// TODO -TO CHECK CASCADE ))) => DOESN'T NEED couponsDAO.deleteCouponPurchase();
+                            System.out.println("Expired coupons and their purchases are deleted");
+                        }
                     }
                 }
             } catch (SQLException | InternalSystemException e) {
-                e.getCause();
+                 throw new RuntimeException("DB error from CouponExpirationDailyJob.", e);
+            }
+            try {
+                Thread.sleep(MILLISECONDS_IN_DAY);
+                System.out.println("I'm running in the background after"); // TODO
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Thread doesn't succeed to sleep");
             }
         }
     }

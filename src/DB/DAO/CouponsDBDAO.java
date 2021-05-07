@@ -11,8 +11,22 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CouponsDBDAO implements CouponsDAO {
-    private ConnectionPool connectionPool = ConnectionPool.getInstance();
+public class CouponsDBDAO implements CouponsDAO { // CouponsDBDAO is Singleton
+
+    private ConnectionPool connectionPool;
+
+    private static CouponsDBDAO instance;
+
+    private CouponsDBDAO() {
+        connectionPool = ConnectionPool.getInstance();
+    }
+
+    public static CouponsDBDAO getInstance() {
+        if (instance == null) {
+            instance = new CouponsDBDAO();
+        }
+        return instance;
+    }
 
     @Override
     public void addCoupon(Coupon coupon) throws SQLException, InternalSystemException {

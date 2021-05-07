@@ -5,6 +5,7 @@ public class CouponSystemManager { // is Singleton
     private static CouponSystemManager instance;
     ConnectionPool connectionPool;
     Thread dailyJob;
+    CouponExpirationDailyJob couponExpirationDailyJob = new CouponExpirationDailyJob();
 
     public static CouponSystemManager getInstance() {
         if (instance == null) {
@@ -19,9 +20,8 @@ public class CouponSystemManager { // is Singleton
     }
 
     private void initThread() {
-        dailyJob = new Thread(new CouponExpirationDailyJob());
+        dailyJob = new Thread(couponExpirationDailyJob);
         dailyJob.start();
-        //dailyJob.setDaemon(true);
     }
 
     public void closeAllConnections() {

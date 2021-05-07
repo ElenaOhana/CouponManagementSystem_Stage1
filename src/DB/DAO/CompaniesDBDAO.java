@@ -10,8 +10,22 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CompaniesDBDAO implements CompaniesDAO {
-    private ConnectionPool connectionPool = ConnectionPool.getInstance();
+public class CompaniesDBDAO implements CompaniesDAO { // CompaniesDBDAO is Singleton
+
+    private static CompaniesDBDAO instance;
+
+    private ConnectionPool connectionPool;
+
+    private CompaniesDBDAO() {
+        connectionPool = ConnectionPool.getInstance();
+    }
+
+    public static CompaniesDBDAO getInstance() {
+        if (instance == null) {
+            instance = new CompaniesDBDAO();
+        }
+        return instance;
+    }
 
     @Override
     public boolean isCompanyExists(String email, String password) throws SQLException, InternalSystemException {

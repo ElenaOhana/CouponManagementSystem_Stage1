@@ -12,8 +12,22 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CustomersDBDAO implements CustomersDAO {
-    private ConnectionPool connectionPool = ConnectionPool.getInstance();
+public class CustomersDBDAO implements CustomersDAO { // CustomersDBDAO is Singleton
+
+    private static CustomersDBDAO instance;
+
+    private ConnectionPool connectionPool;
+
+    private CustomersDBDAO() {
+        connectionPool = ConnectionPool.getInstance();
+    }
+
+    public static CustomersDAO getInstance() {
+        if (instance == null) {
+            instance = new CustomersDBDAO();
+        }
+        return instance;
+    }
 
     @Override
     public boolean isCustomerExists(String email, String password) throws SQLException, InternalSystemException {

@@ -6,7 +6,7 @@ public class Program {
 
         Test.testAll();
 
-        couponSystemManager.dailyJob.stop();//But Daemon Thread ends by himself after "program" finish
+        couponSystemManager.couponExpirationDailyJob.stop();
         couponSystemManager.closeAllConnections();
     }
 }

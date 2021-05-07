@@ -2,6 +2,7 @@ package tests;
 
 import DB.DBPseudoDataManager;
 import businesslogic.facade.AdminFacade;
+import businesslogic.facade.CompanyFacade;
 import exceptions.CouponSystemException;
 import exceptions.TestException;
 import java_beans_entities.Coupon;
@@ -25,21 +26,21 @@ public class Test {
     private static void facadeTesting() throws TestException {
         System.out.println("-------------------------------------Administrator Facade Test-----------------------------------------");
         try {
-            //AdminFacade adminFacade = (AdminFacade) LoginManager.login("admin@admin.com", "admin", ClientType.ADMINISTRATOR);
             AdminFacade adminFacade1 = (AdminFacade) LoginManager.login("adin@adin.com", "admin", ClientType.ADMINISTRATOR);// Should provide "Wrong admin credentials" error.
+            AdminFacade adminFacade = (AdminFacade) LoginManager.login("admin@admin.com", "admin", ClientType.ADMINISTRATOR); // Getting company details successfully
         } catch (CouponSystemException e) {
-            throw new TestException("Wrong admin credentials", e); // sout moshno!
+            System.out.println("Wrong admin credentials"); // sout moshno! must System.out.println("Wrong admin credentials");
         }
 
 
-        /*System.out.println("-------------------------------------Company Facade Test-----------------------------------------");
+        System.out.println("-------------------------------------Company Facade Test-----------------------------------------");
         CompanyFacade companyFacade;
         try {
             companyFacade = (CompanyFacade) LoginManager.login("companyA@gmail.com", "1111", ClientType.COMPANY);
             Coupon coupon = addCouponWithWrongCompanyId();
-            *//*if (companyFacade != null) {
+            if (companyFacade != null) {
                 companyFacade.addCoupon(coupon);
-            }*//*
+            }
 
             Coupon coupon2 = addCouponWithRightCompanyId();
             if (companyFacade != null) {
@@ -51,7 +52,7 @@ public class Test {
             }
         } catch ( CouponSystemException e) {
             throw new TestException("Company Id is 3 instead of 1.", e);
-        }*/
+        }
 
         //System.out.println("-------------------------------------Customer Facade Test-----------------------------------------");
     }
