@@ -16,4 +16,5 @@ public class CouponSystemException extends Exception {
     public CouponSystemException(Throwable cause) {
         super(cause);
     }
+
 }

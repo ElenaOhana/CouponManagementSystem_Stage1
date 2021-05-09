@@ -10,6 +10,7 @@ import java_beans_entities.Coupon;
 import java_beans_entities.Customer;
 
 import java.sql.SQLException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class CouponExpirationDailyJob implements Runnable {
     private CouponsDAO couponsDAO = CouponsDBDAO.getInstance();
     private CustomersDAO customersDAO = CustomersDBDAO.getInstance();
     private boolean quit = false;
-    private final long MILLISECONDS_IN_DAY = 86400000; // It promise that DailyJob will work ones a day
+    private final long MILLISECONDS_IN_DAY = Duration.ofDays(1).toMillis(); // = 86400000 milliseconds. It promise that DailyJob will work ones a day
 
     public CouponExpirationDailyJob() {
     }
@@ -27,7 +28,7 @@ public class CouponExpirationDailyJob implements Runnable {
     public void run() {
         while (!quit) {
             System.out.println("DailyJob is started running in the background");
-
+            //System.out.println(MILLISECONDS_IN_DAY);
             try {
                 for (Customer customer : customersDAO.getAllCustomers()) {
                     List<Coupon> couponList = customer.getCoupons();
