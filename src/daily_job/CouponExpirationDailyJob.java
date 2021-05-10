@@ -4,7 +4,6 @@ import DB.DAO.CouponsDAO;
 import DB.DAO.CouponsDBDAO;
 import DB.DAO.CustomersDAO;
 import DB.DAO.CustomersDBDAO;
-import exceptions.CouponSystemException;
 import exceptions.InternalSystemException;
 import java_beans_entities.Coupon;
 import java_beans_entities.Customer;
@@ -28,7 +27,15 @@ public class CouponExpirationDailyJob implements Runnable {
     public void run() {
         while (!quit) {
             System.out.println("DailyJob is started running in the background");
-            //System.out.println(MILLISECONDS_IN_DAY);
+
+            /* I have put a Thread to sleep here in order to let the main thread to add expired coupons first. */
+            /*try {
+                System.out.println("DailyJob goes to sleep for 10 seconds");
+                Thread.sleep(10_000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Thread doesn't succeed to sleep");
+            }*/
+
             try {
                 for (Customer customer : customersDAO.getAllCustomers()) {
                     List<Coupon> couponList = customer.getCoupons();
@@ -45,9 +52,10 @@ public class CouponExpirationDailyJob implements Runnable {
             } catch (SQLException | InternalSystemException e) {
                  throw new RuntimeException("DB error from CouponExpirationDailyJob.", e);
             }
+
             try {
-                Thread.sleep(MILLISECONDS_IN_DAY);
-                System.out.println("I'm running in the background after"); // TODO
+                Thread.sleep(4_000); // In order to check the couponExpirationDailyJob.stop() (in Program class) is work, you can change the MILLISECONDS_IN_DAY to 5_000.
+                System.out.println("I'm running in the background after"); // only for check
             } catch (InterruptedException e) {
                 throw new RuntimeException("Thread doesn't succeed to sleep");
             }

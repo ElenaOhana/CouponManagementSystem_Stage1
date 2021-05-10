@@ -25,6 +25,12 @@ public class Company {
         this.clientStatus = clientStatus;
     }
 
+    public Company(String name, String email, String password) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+    }
+
     public ClientStatus getClientStatus() {
         return clientStatus;
     }

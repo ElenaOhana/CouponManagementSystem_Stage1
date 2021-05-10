@@ -5,6 +5,7 @@ import businesslogic.facade.AdminFacade;
 import businesslogic.facade.CompanyFacade;
 import exceptions.CouponSystemException;
 import exceptions.TestException;
+import java_beans_entities.Company;
 import java_beans_entities.Coupon;
 import login.ClientType;
 import login.LoginManager;
@@ -24,16 +25,33 @@ public class Test {
     }
 
     private static void facadeTesting() throws TestException {
+        AdminFacade adminFacade = null; /* Company with right credentials */
         System.out.println("-------------------------------------Administrator Facade Test-----------------------------------------");
         try {
-            AdminFacade adminFacade1 = (AdminFacade) LoginManager.login("adin@adin.com", "admin", ClientType.ADMINISTRATOR);// Should provide "Wrong admin credentials" error.
-            AdminFacade adminFacade = (AdminFacade) LoginManager.login("admin@admin.com", "admin", ClientType.ADMINISTRATOR); // Getting company details successfully
+            AdminFacade adminFacade1 = (AdminFacade) LoginManager.login("adin@adin.com", "admin", ClientType.ADMINISTRATOR);/* Should provide "Wrong admin credentials" error. */
         } catch (CouponSystemException e) {
             System.out.println("Wrong admin credentials"); // sout moshno! must System.out.println("Wrong admin credentials");
         }
+        try {
+            adminFacade = (AdminFacade) LoginManager.login("admin@admin.com", "admin", ClientType.ADMINISTRATOR); /* Should get company credentials successfully */
+            System.out.println("Right credentials");
+        } catch (CouponSystemException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            adminFacade.addCompany(new Company("Zara women", "zara_women@company.com", "ZARA123"));
+        } catch (CouponSystemException e) {
+            e.printStackTrace();
+        }
 
 
-        System.out.println("-------------------------------------Company Facade Test-----------------------------------------");
+
+
+
+
+
+       /* System.out.println("-------------------------------------Company Facade Test-----------------------------------------");
         CompanyFacade companyFacade;
         try {
             companyFacade = (CompanyFacade) LoginManager.login("companyA@gmail.com", "1111", ClientType.COMPANY);
@@ -52,7 +70,7 @@ public class Test {
             }
         } catch ( CouponSystemException e) {
             throw new TestException("Company Id is 3 instead of 1.", e);
-        }
+        }*/
 
         //System.out.println("-------------------------------------Customer Facade Test-----------------------------------------");
     }

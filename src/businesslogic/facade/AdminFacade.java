@@ -28,10 +28,10 @@ public class AdminFacade extends ClientFacade {
         companySet.add(company);
         return true;//todo  maybe? Exception
     }
+
     public boolean add(Customer customer) {
         return customerSet.add(customer);// todo maybe? Exception
     }
-    /////////////////
 
     public static boolean login(String email, String password) throws CouponSystemException { // Hard-Coded- יש לבדוק אותם כ
         boolean loginOk;
