@@ -40,25 +40,19 @@ public class AdminFacade extends ClientFacade {
         if (emailOk && passwordOk) {
             loginOk = true;
         } else {
-            throw new CouponSystemException("Wrong credentials");
+            throw new CouponSystemException("Wrong admin credentials");
         }
         return loginOk;
     }
 
     public void addCompany(Company company) throws CouponSystemException {
-        boolean isCompanyNameExists;
-        boolean isCompanyEmailExists;
+        boolean isCompanyExists;
         try {
-            isCompanyNameExists = companiesDAO.isCompanyNameExists(company.getName());
-            isCompanyEmailExists = companiesDAO.isCompanyEmailExists(company.getEmail());
-        } catch (SQLException e) {
-            throw new CouponSystemException("DB error.", e);
-        }
-        try {
-            if (!(isCompanyNameExists && isCompanyEmailExists)) { // To prevent the SQLException about the explicitly defined name and email as unique in DB.
+            isCompanyExists = companiesDAO.isCompanyExists(company.getEmail(), company.getPassword());
+            if (!isCompanyExists) {
                 companiesDAO.addCompany(company);
             } else {
-                throw new CouponSystemException("DB error.");
+                throw new InternalSystemException("Company already exist error.");
             }
         } catch (SQLException | InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);
@@ -67,6 +61,10 @@ public class AdminFacade extends ClientFacade {
 
     public void updateCompany(Company company) throws CouponSystemException {
         try {
+            Company company1 = companiesDAO.getOneCompany(company.getId());
+            if (!company1.getName().equalsIgnoreCase(company.getName())) {
+                throw new CouponSystemException("Trying update a company name error.");
+            }
             companiesDAO.updateCompany(company);
         } catch (SQLException | InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);

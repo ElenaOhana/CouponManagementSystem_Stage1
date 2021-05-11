@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 
 public class Test {
     public static void testAll() {
+
         DBPseudoDataManager.dropCreateTables();
 
         try {
@@ -25,25 +26,79 @@ public class Test {
     }
 
     private static void facadeTesting() throws TestException {
-        AdminFacade adminFacade = null; /* Company with right credentials */
+        String tab = "      ";
+        AdminFacade adminFacade = null;
+        Company company = new Company("New Farm", "new_farm@company2.com", "new222");
+
         System.out.println("-------------------------------------Administrator Facade Test-----------------------------------------");
+        System.out.println(tab + "LOGIN METHOD TESTING:");
         try {
-            AdminFacade adminFacade1 = (AdminFacade) LoginManager.login("adin@adin.com", "admin", ClientType.ADMINISTRATOR);/* Should provide "Wrong admin credentials" error. */
+            System.out.println(tab + "---------------ERROR---------------");
+            adminFacade = (AdminFacade) LoginManager.login("adin@adin.com", "admin", ClientType.ADMINISTRATOR); /* Should provide "Wrong admin credentials" error. */
         } catch (CouponSystemException e) {
-            System.out.println("Wrong admin credentials"); // sout moshno! must System.out.println("Wrong admin credentials");
+            System.out.println(tab + e.getMessage());
         }
         try {
-            adminFacade = (AdminFacade) LoginManager.login("admin@admin.com", "admin", ClientType.ADMINISTRATOR); /* Should get company credentials successfully */
-            System.out.println("Right credentials");
+            adminFacade = (AdminFacade) LoginManager.login("admin@admin.com", "admin", ClientType.ADMINISTRATOR); /* Should get adminFacade successfully, because it's right credentials */
+            System.out.println(tab + "Right admin credentials");
         } catch (CouponSystemException e) {
             e.printStackTrace();
+        }
+        System.out.println(tab + "ADD_COMPANY METHOD TESTING:");
+        try {
+            assert adminFacade != null;
+            adminFacade.addCompany(new Company("Zara women", "zara_women@company.com", "ZARA123")); /* Should create a new company successfully */
+            System.out.println(tab + "Create a new company successfully");
+        } catch (CouponSystemException e) {
+            e.printStackTrace();
+        }
+        try {
+            System.out.println(tab + "---------------ERROR---------------");
+            adminFacade.addCompany(new Company("Zara women", "zara_women@company.com", "ZARA123")); /* Should provide "Company already exist error."*/
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getCause());
+        }
+        try {
+            System.out.println(tab + "---------------ERROR---------------");
+            adminFacade.addCompany(new Company("Zara women", "zara@company.com", "ZARA123")); /* Should provide "Duplicate entry 'Zara women' for key 'Name_UNIQUE'"*/
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getCause());
+        }
+        System.out.println();
+        System.out.println(tab + "UPDATE METHOD TESTING:");
+        try {
+            System.out.println(tab + "---------------ERROR---------------");
+            adminFacade.updateCompany(new Company(3, "New Farm","new_farm@company.com", "2222")); /* Should provide "Getting company failed, no rows affected" error, because we trying update a non exists company. */
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getCause());
         }
 
         try {
-            adminFacade.addCompany(new Company("Zara women", "zara_women@company.com", "ZARA123"));
+            adminFacade.addCompany(company); /* Should add a new company (New Farm). */
+            adminFacade.updateCompany(new Company(3, "New Farm","new_farm@company.com", "2222")); /* Should update an existing company by id. */
+            System.out.println(tab + "Updating a company successfully");
         } catch (CouponSystemException e) {
             e.printStackTrace();
         }
+        try {
+            System.out.println(tab + "---------------ERROR---------------");
+            adminFacade.updateCompany(new Company(3, "Pharmacy","new_farm@company.com", "2222")); /* Should provide an error, because we trying update a company name. */
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getMessage());
+        }
+
+        try {
+            System.out.println(tab + "---------------ERROR---------------");
+            adminFacade.updateCompany(new Company(2, "New Farm","new_farm@company.com", "2222")); /* Should provide an error, because we trying update a company id. */
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getCause());
+        }
+
+
+            // adminFacade.deleteCompanyAsChangeStatus(company.getId());/* Should delete an existing company (New Farm). */
+
+
+
 
 
 

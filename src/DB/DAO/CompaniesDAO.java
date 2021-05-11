@@ -22,9 +22,9 @@ public interface CompaniesDAO {
 
      Company getCompanyByName(String name) throws SQLException, InternalSystemException;
 
-     boolean isCompanyNameExists(String name) throws SQLException;
+     //boolean isCompanyNameExists(String name) throws SQLException;
 
-     boolean isCompanyEmailExists(String email) throws SQLException;
+     //boolean isCompanyEmailExists(String email) throws SQLException;
 
      int loginCompany(String email) throws SQLException;
 

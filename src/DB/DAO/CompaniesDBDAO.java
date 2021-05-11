@@ -43,8 +43,6 @@ public class CompaniesDBDAO implements CompaniesDAO { // CompaniesDBDAO is Singl
                 } else if (!resultSet.getString("Password").equalsIgnoreCase(password)) {
                     throw new InternalSystemException(" Wrong credentials.");
                 }
-            } else {
-                throw new InternalSystemException(" Wrong credentials.");
             }
         }
         finally {
@@ -73,12 +71,11 @@ public class CompaniesDBDAO implements CompaniesDAO { // CompaniesDBDAO is Singl
     @Override
     public void updateCompany(Company company) throws SQLException, InternalSystemException {
         Connection connection = connectionPool.getConnection();
-        final String queryTempUpdateCompany = "UPDATE `Companies` SET `email` = ?, `password` = ?, `Status` = ? WHERE `id` = ?";
+        final String queryTempUpdateCompany = "UPDATE `Companies` SET `email` = ?, `password` = ?  WHERE `id` = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempUpdateCompany)) {
-            preparedStatement.setInt(4, company.getId());
+            preparedStatement.setInt(3, company.getId());
             preparedStatement.setString(1, company.getEmail());
             preparedStatement.setString(2, company.getPassword());
-            preparedStatement.setString(3, company.getClientStatus().toString()); // TODO maybe to change - i don't need it
             int row = preparedStatement.executeUpdate();
             if (row == 0) {
                 throw new InternalSystemException("Update Company failed, no rows affected.");
@@ -149,7 +146,7 @@ public class CompaniesDBDAO implements CompaniesDAO { // CompaniesDBDAO is Singl
                     ClientStatus clientStatus = ClientStatus.valueOf(status);
                     company = new Company(companyID, name, email, password, clientStatus);
                 } else {
-                    throw new InternalSystemException("Creating company failed, no ID obtained.");
+                    throw new InternalSystemException("Getting company failed, no ID obtained.");
                 }
             }
         } finally {
@@ -183,7 +180,7 @@ public class CompaniesDBDAO implements CompaniesDAO { // CompaniesDBDAO is Singl
         return company;
     }
 
-    @Override
+    /*@Override
     public boolean isCompanyNameExists(String name) throws SQLException {
         final String queryTempGetCompanyName = "SELECT `name` FROM `Companies` WHERE `name` = ?";
         Connection connection = connectionPool.getConnection();
@@ -191,8 +188,9 @@ public class CompaniesDBDAO implements CompaniesDAO { // CompaniesDBDAO is Singl
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetCompanyName)) {
             preparedStatement.setString(1, name);
             preparedStatement.executeQuery();
+
             try (ResultSet resultSet = preparedStatement.getResultSet()) {
-                boolean nameExists = resultSet.getString("name").equalsIgnoreCase(name);
+                boolean nameExists = resultSet.getString("Name").equalsIgnoreCase(name);
                 if (resultSet.next()) {
                     if (nameExists) {
                         result = true;
@@ -203,9 +201,9 @@ public class CompaniesDBDAO implements CompaniesDAO { // CompaniesDBDAO is Singl
             connectionPool.restoreConnection(connection);
         }
         return result;
-    }
+    }*/
 
-    @Override
+    /*@Override
     public boolean isCompanyEmailExists(String email) throws SQLException {
         final String queryTempGetCompanyEmail = "SELECT `email` FROM `Companies` WHERE `email` = ?";
         Connection connection = connectionPool.getConnection();
@@ -225,7 +223,7 @@ public class CompaniesDBDAO implements CompaniesDAO { // CompaniesDBDAO is Singl
             connectionPool.restoreConnection(connection);
         }
         return result;
-    }
+    }*/
 
     @Override
     public int loginCompany(String email) throws SQLException {
@@ -238,8 +236,6 @@ public class CompaniesDBDAO implements CompaniesDAO { // CompaniesDBDAO is Singl
             try (ResultSet resultSet = preparedStatement.getResultSet()) {
                 if (resultSet.next()) {
                         id = resultSet.getInt("id");
-                   /* if (resultSet.getString("Email").equalsIgnoreCase(email)) { // TODO ПОЧЕМУ С ЭТОЙ ПРОВЕРКОЙ НЕ РАБОТАЕТ?
-                    }*/
                 }
             }
         } finally {
