@@ -7,16 +7,8 @@ import java_beans_entities.Coupon;
 import java_beans_entities.Customer;
 
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-/*
-    :Clients הגישה למערכת מתחלקת לשלושה סוגי
-    ניהול רשימת החברות ורשימת הלקוחות. – Administrator .1
-    ניהול רשימת קופונים המשויכים לחברה. – Company .2
-    רכישת קופונים. – Customer .3
-     */
 public class AdminFacade extends ClientFacade {
     private Set<Company> companySet = new HashSet<>();
     private Set<Customer> customerSet = new HashSet<>();
@@ -62,6 +54,7 @@ public class AdminFacade extends ClientFacade {
     public void updateCompany(Company company) throws CouponSystemException {
         try {
             Company company1 = companiesDAO.getOneCompany(company.getId());
+            /* Without this check the Database will not allow to update the Company name too, but I wanted the client to receive any feedback on wrong action. */
             if (!company1.getName().equalsIgnoreCase(company.getName())) {
                 throw new CouponSystemException("Trying update a company name error.");
             }
@@ -72,13 +65,21 @@ public class AdminFacade extends ClientFacade {
     }
 
     public void deleteCompanyAsChangeStatus(int companyId) throws CouponSystemException {
+        List<Customer> customerList;
         try {
-            List<Coupon> couponList = couponsDAO.getCompanyCouponsByCompanyId(companyId);//Delete all coupons that Company created
+            List<Coupon> couponList = couponsDAO.getCompanyCouponsByCompanyId(companyId);
             for (Coupon coupon : couponList) {
-                couponsDAO.deleteCouponAsChangeStatus(coupon.getId());
+                couponsDAO.deleteCouponAsChangeStatus(coupon.getId()); /* Delete/ChangeStatus all coupons that Company created */
+
+                customerList = couponsDAO.getCustomersIdFromCustomersVsCoupons(coupon.getId());
+                System.out.println(customerList);
+                if (customerList != null) {
+                    for (Customer customer : customerList) {
+                        customersDAO.deleteCustomerAsChangeStatus(customer.getId());/* Delete/ChangeStatus all coupons that Customer purchase */
+                    }
+                }
             }
             companiesDAO.deleteCompanyAsChangeStatus(companyId);
-            //couponsDAO.deleteCouponPurchase(customersId); // יש למחוק בנוסף גם את היסטוריית רכישת הקופונים של החברה ע"י לקוחות
 
         } catch (SQLException | InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);

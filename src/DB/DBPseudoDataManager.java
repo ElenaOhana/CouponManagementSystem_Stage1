@@ -1,5 +1,8 @@
 package DB;
 
+import exceptions.InternalSystemException;
+import java_beans_entities.Category;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -14,6 +17,7 @@ public class DBPseudoDataManager {
     static final String queryTempDropTableCustomers = "DROP TABLE IF EXISTS `coupon_management_system`.`customers`";
     static final String queryTempDropTableCoupons = "DROP TABLE IF EXISTS `coupon_management_system`.`coupons`";
     static final String queryTempDropTableCustomersVSCoupons = "DROP TABLE IF EXISTS `coupon_management_system`.`customers_vs_coupons`";
+    static final String queryTempCreateCategories = "INSERT INTO `coupon_management_system`.`categories` (`FirstName`) VALUES (?);";
 
     static final String queryTempCreateTableCompanies = "CREATE TABLE IF NOT EXISTS`coupon_management_system`.`companies` (\n" +
             "\t`ID` INT NOT NULL AUTO_INCREMENT,\n" +
@@ -59,13 +63,13 @@ public class DBPseudoDataManager {
             "  CONSTRAINT `CompanyId_fk`\n" +
             "    FOREIGN KEY (`CompanyId`)\n" +
             "    REFERENCES `coupon_management_system`.`companies` (`ID`)\n" +
-            "    ON DELETE CASCADE\n" +
-            "    ON UPDATE CASCADE,\n" +
+            "    ON DELETE NO ACTION\n" +
+            "    ON UPDATE NO ACTION,\n" +
             "  CONSTRAINT `CategoryId_fk`\n" +
             "    FOREIGN KEY (`CategoryId`)\n" +
             "    REFERENCES `coupon_management_system`.`categories` (`Id`)\n" +
-            "    ON DELETE CASCADE\n" +
-            "    ON UPDATE CASCADE);";
+            "    ON DELETE NO ACTION\n" +
+            "    ON UPDATE NO ACTION);";
 
     static final String queryTempCreateTableCustomersVSCoupons = "CREATE TABLE IF NOT EXISTS`coupon_management_system`.`customers_vs_coupons` (\n" +
             "  `CustomerId` INT NOT NULL,\n" +
@@ -76,8 +80,8 @@ public class DBPseudoDataManager {
             "  CONSTRAINT `CouponId`\n" +
             "    FOREIGN KEY (`CouponId`)\n" +
             "    REFERENCES `coupon_management_system`.`coupons` (`Id`)\n" +
-            "    ON DELETE CASCADE\n" +
-            "    ON UPDATE CASCADE,\n" +
+            "    ON DELETE NO ACTION\n" +
+            "    ON UPDATE NO ACTION,\n" +
             "  CONSTRAINT `CustomerId`\n" +
             "    FOREIGN KEY (`CustomerId`)\n" +
             "    REFERENCES `coupon_management_system`.`customers` (`Id`)\n" +
@@ -115,5 +119,19 @@ public class DBPseudoDataManager {
         toExecuteQuery(queryTempDropTableCoupons);
         toExecuteQuery(queryTempDropTableCategories);
         toExecuteQuery(queryTempDropTableCompanies);
+    }
+
+    public static void createCategories(Category category) throws SQLException, InternalSystemException {
+        ConnectionPool connectionPool = ConnectionPool.getInstance();
+        Connection connection = connectionPool.getConnection();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempCreateCategories)) {
+            preparedStatement.setString(1,category.getName());
+            int row = preparedStatement.executeUpdate();
+            if (row == 0) {
+                throw new InternalSystemException("Creating Category failed, no rows affected.");
+            }
+        } finally {
+            connectionPool.restoreConnection(connection);
+        }
     }
 }

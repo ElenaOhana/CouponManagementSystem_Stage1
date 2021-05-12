@@ -22,7 +22,7 @@ public class CustomersDBDAO implements CustomersDAO { // CustomersDBDAO is Singl
         connectionPool = ConnectionPool.getInstance();
     }
 
-    public static CustomersDAO getInstance() {
+    public static CustomersDBDAO getInstance() {
         if (instance == null) {
             instance = new CustomersDBDAO();
         }
@@ -92,12 +92,12 @@ public class CustomersDBDAO implements CustomersDAO { // CustomersDBDAO is Singl
     }
 
     @Override
-    public void deleteCustomerAsChangeStatus(int customerID) throws SQLException, InternalSystemException { // I do not delete object, I add status inactive instead
-        // TODO  to add status inactive to ClientStatus after deleting
+    public void deleteCustomerAsChangeStatus(int customerID) throws SQLException, InternalSystemException { /* I do not delete object, I add status inactive instead */
         Connection connection = connectionPool.getConnection();
-        final String queryTempChangeCustomerStatus = "UPDATE `customers` SET `Status` = `INACTIVE` WHERE `id` = ?"; //TODO TO CHECK `inactive`
+        final String queryTempChangeCustomerStatus = "UPDATE `customers` SET `Status` = ? WHERE `id` = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempChangeCustomerStatus)) {
-            preparedStatement.setInt(1, customerID);
+            preparedStatement.setString(1, "INACTIVE");
+            preparedStatement.setInt(2, customerID);
             int row = preparedStatement.executeUpdate();
             if (row == 0) {
                 throw new InternalSystemException("Delete Customer failed, no rows affected.");

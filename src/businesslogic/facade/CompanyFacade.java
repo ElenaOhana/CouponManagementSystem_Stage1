@@ -9,6 +9,13 @@ import java_beans_entities.Coupon;
 import java.sql.SQLException;
 import java.util.List;
 
+
+/*
+    :Clients הגישה למערכת מתחלקת לשלושה סוגי
+    ניהול רשימת החברות ורשימת הלקוחות. – Administrator .1
+    ניהול רשימת קופונים המשויכים לחברה. – Company .2
+    רכישת קופונים. – Customer .3
+     */
 public class CompanyFacade extends ClientFacade {
     private int companyId;
 

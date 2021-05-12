@@ -3,6 +3,7 @@ package DB.DAO;
 import exceptions.InternalSystemException;
 import java_beans_entities.Category;
 import java_beans_entities.Coupon;
+import java_beans_entities.Customer;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -30,4 +31,6 @@ public interface CouponsDAO {
     List<Coupon> getCustomerCouponsByCustomerId(int customerId) throws SQLException;
 
     List<Coupon> getCompanyCouponsByCompanyId(int companyId) throws SQLException;
+
+    List<Customer> getCustomersIdFromCustomersVsCoupons(int couponId) throws SQLException;
 }

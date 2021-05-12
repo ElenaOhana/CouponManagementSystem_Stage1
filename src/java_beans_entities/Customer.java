@@ -1,6 +1,7 @@
 package java_beans_entities;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Customer {
     private int id;
@@ -89,5 +90,31 @@ public class Customer {
 
     public void setCoupons(ArrayList<Coupon> coupons) {
         this.coupons = coupons;
+    }
+
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", coupons=" + coupons +
+                ", clientStatus=" + clientStatus +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Customer customer = (Customer) o;
+        return getId() == customer.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
     }
 }

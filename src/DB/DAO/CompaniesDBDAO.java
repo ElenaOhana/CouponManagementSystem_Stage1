@@ -86,15 +86,12 @@ public class CompaniesDBDAO implements CompaniesDAO { // CompaniesDBDAO is Singl
     }
 
     @Override
-    public void deleteCompanyAsChangeStatus(int companyID) throws SQLException, InternalSystemException { // I do not delete object, I add status inactive instead // TODO  to add status inactive to ClientStatus after deleting
+    public void deleteCompanyAsChangeStatus(int companyID) throws SQLException, InternalSystemException { /* I do not delete object, I add status inactive instead */ //TODO  to add status inactive to ClientStatus after deleting
         Connection connection = connectionPool.getConnection();
-        final String queryTempChangeCompanyStatus = "UPDATE `Companies` SET `Status` = `INACTIVE` WHERE `id` = ?"; //TODO TO CHECK `inactive`
-        /*//For transaction:
-        final String queryTempChangeCouponsStatus = "UPDATE `Coupons` SET `Status` = `unable` WHERE `id` = ?";
-        connection.setAutoCommit(false);
-        Savepoint save1 = connection.setSavepoint();*/
+        final String queryTempChangeCompanyStatus = "UPDATE `Companies` SET `Status` = ? WHERE `id` = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempChangeCompanyStatus)) {
-            preparedStatement.setInt(1, companyID);
+            preparedStatement.setInt(2, companyID);
+            preparedStatement.setString(1, "INACTIVE");
             int row = preparedStatement.executeUpdate();
             if (row == 0) {
                 throw new InternalSystemException("Delete Company failed, no rows affected.");

@@ -2,9 +2,7 @@ package DB.DAO;
 
 import DB.ConnectionPool;
 import exceptions.InternalSystemException;
-import java_beans_entities.Category;
-import java_beans_entities.Coupon;
-import java_beans_entities.CouponStatus;
+import java_beans_entities.*;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -77,12 +75,13 @@ public class CouponsDBDAO implements CouponsDAO { // CouponsDBDAO is Singleton
     @Override
     public void deleteCouponAsChangeStatus(int couponID) throws SQLException, InternalSystemException {
         Connection connection = connectionPool.getConnection();
-        final String queryTempChangeCouponStatusByCouponId = "UPDATE `coupons` SET `Status` = `DISABLE` WHERE `id` = ?";
+        final String queryTempChangeCouponStatusByCouponId = "UPDATE `coupons` SET `Status` = ? WHERE `id` = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempChangeCouponStatusByCouponId)) {
-            preparedStatement.setInt(1, couponID);
+            preparedStatement.setString(1, "DISABLE");
+            preparedStatement.setInt(2, couponID);
             int row = preparedStatement.executeUpdate();
             if (row == 0) {
-                throw new InternalSystemException("Delete Customer failed, no rows affected.");
+                throw new InternalSystemException("Delete Coupon failed, no rows affected.");
             }
         } finally {
             connectionPool.restoreConnection(connection);
@@ -239,6 +238,8 @@ public class CouponsDBDAO implements CouponsDAO { // CouponsDBDAO is Singleton
          //"UPDATE `customers_vs_coupons` SET `WHAT???` = `unable` WHERE `id` = (" + //TODO check UPDATE `customers_vs_coupons` - If CASCADE works => MUST WORK ON UPDATE
         //                "SELECT `couponId` FROM `customers_vs_coupons` WHERE `couponId`=? AND `customerId` = ?)"
 
+        ////String queryTempGetCompanyCoupons = "SELECT * FROM companies com join coupons coup on com.companyId = coup.?"; // example with alias
+
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempChangeCouponStatusByCouponIdAndCustomerID)) {
             preparedStatement.setInt(1, couponId);
             preparedStatement.setInt(2, customerID);
@@ -288,29 +289,57 @@ public class CouponsDBDAO implements CouponsDAO { // CouponsDBDAO is Singleton
         Connection connection = connectionPool.getConnection();
         Coupon coupon;
         List<Coupon> couponList = new ArrayList<>();
-        String queryTempGetCompanyCoupons = "SELECT * FROM companies join coupons on companyId = ?";
+        String queryTempGetCompanyCoupons = "SELECT * FROM coupons where companyId = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetCompanyCoupons)) {
             preparedStatement.setInt(1, companyID);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    int id = resultSet.getInt("id");
-                    int categoryId = resultSet.getInt("categoryId");
-                    String title = resultSet.getString("title");
-                    String description = resultSet.getString("description");
-                    LocalDateTime startDate = resultSet.getTimestamp("startDate").toLocalDateTime();
-                    LocalDateTime endDate = resultSet.getTimestamp("endDate").toLocalDateTime();
-                    int amount = resultSet.getInt("amount");
-                    double price = resultSet.getDouble("price");
-                    String status = resultSet.getString("coupons.status");
-                    String image = resultSet.getString("image");
-                    CouponStatus couponStatus = CouponStatus.valueOf(status);
-                    coupon = new Coupon(id, companyID,categoryId,title,description,startDate, endDate, amount, price,image, couponStatus);
-                    couponList.add(coupon);
+                        int id = resultSet.getInt("id");
+                        int categoryId = resultSet.getInt("categoryId");
+                        String title = resultSet.getString("title");
+                        String description = resultSet.getString("description");
+                        LocalDateTime startDate = resultSet.getTimestamp("startDate").toLocalDateTime();
+                        LocalDateTime endDate = resultSet.getTimestamp("endDate").toLocalDateTime();
+                        int amount = resultSet.getInt("amount");
+                        double price = resultSet.getDouble("price");
+                        String status = resultSet.getString("coupons.status");
+                        String image = resultSet.getString("image");
+                        CouponStatus couponStatus = CouponStatus.valueOf(status);
+                        coupon = new Coupon(id, companyID,categoryId,title,description,startDate, endDate, amount, price,image, couponStatus);
+                        couponList.add(coupon);
                 }
             }
         } finally {
             connectionPool.restoreConnection(connection);
         }
         return couponList;
+    }
+
+    @Override
+    public List<Customer> getCustomersIdFromCustomersVsCoupons(int couponId) throws SQLException {
+        List<Customer> customerList = null;
+        Connection connection = connectionPool.getConnection();
+        Customer customer;
+        String queryTempGetCustomersCoupons = "SELECT * FROM customers_vs_coupons where couponId = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetCustomersCoupons)) {
+            preparedStatement.setInt(1, couponId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    String firstName = resultSet.getString("FirstName");
+                    String lastName = resultSet.getString("LastName");
+                    String email = resultSet.getString("Email");
+                    String password = resultSet.getString("Password");
+                    String status = resultSet.getString("customer.status");
+
+                    ClientStatus customerStatus = ClientStatus.valueOf(status);
+                    customer = new Customer(id, firstName,lastName,email,password);
+                    customerList.add(customer);
+                }
+            }
+        } finally {
+            connectionPool.restoreConnection(connection);
+        }
+        return customerList;
     }
 }
