@@ -3,9 +3,10 @@ import daily_job.CouponExpirationDailyJob;
 
 public class CouponSystemManager { // is Singleton
     private static CouponSystemManager instance;
-    ConnectionPool connectionPool;
-    Thread dailyJob;
-    CouponExpirationDailyJob couponExpirationDailyJob = new CouponExpirationDailyJob();
+    private ConnectionPool connectionPool;
+    private Thread dailyJob;
+//    CouponExpirationDailyJob couponExpirationDailyJob = new CouponExpirationDailyJob();
+    public CouponExpirationDailyJob couponExpirationDailyJob;
 
     public static CouponSystemManager getInstance() {
         if (instance == null) {
@@ -15,16 +16,17 @@ public class CouponSystemManager { // is Singleton
     }
 
     private CouponSystemManager() {
-        initThread();
         connectionPool = ConnectionPool.getInstance();
-    }
-
-    private void initThread() {
-        dailyJob = new Thread(couponExpirationDailyJob);
-        dailyJob.start();
-    }
+   }
 
     public void closeAllConnections() {
         connectionPool.closeAllConnections();
+    }
+
+    public CouponExpirationDailyJob startJob() {
+        couponExpirationDailyJob = new CouponExpirationDailyJob();
+        dailyJob = new Thread(couponExpirationDailyJob);
+        dailyJob.start();
+        return couponExpirationDailyJob;
     }
 }

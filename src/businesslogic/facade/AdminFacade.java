@@ -2,6 +2,7 @@ package businesslogic.facade;
 
 import exceptions.CouponSystemException;
 import exceptions.InternalSystemException;
+import exceptions.NotFoundException;
 import java_beans_entities.Company;
 import java_beans_entities.Coupon;
 import java_beans_entities.Customer;
@@ -52,15 +53,17 @@ public class AdminFacade extends ClientFacade {
     }
 
     public void updateCompany(Company company) throws CouponSystemException {
-        try {
-            Company company1 = companiesDAO.getOneCompany(company.getId());
-            /* Without this check the Database will not allow to update the Company name too, but I wanted the client to receive any feedback on wrong action. */
-            if (!company1.getName().equalsIgnoreCase(company.getName())) {
-                throw new CouponSystemException("Trying update a company name error.");
+        if (company != null) {
+            try {
+                Company company1 = companiesDAO.getOneCompany(company.getId());
+                /* Without this check the Database will not allow to update the Company name too, but I wanted the client to receive any feedback on wrong action. */
+                if (!company1.getName().equalsIgnoreCase(company.getName())) {
+                    throw new CouponSystemException("Trying update a company name error.");
+                }
+                companiesDAO.updateCompany(company);
+            } catch (SQLException | InternalSystemException e) {
+                throw new CouponSystemException("DB error.", e);
             }
-            companiesDAO.updateCompany(company);
-        } catch (SQLException | InternalSystemException e) {
-            throw new CouponSystemException("DB error.", e);
         }
     }
 
@@ -108,7 +111,9 @@ public class AdminFacade extends ClientFacade {
 
     public void addCustomer(Customer customer) throws CouponSystemException {
         try {
-            customersDAO.addCustomer(customer);
+            if (customer != null) {
+                customersDAO.addCustomer(customer);
+            } else throw new NotFoundException("Customer is not found") ;
         } catch (SQLException | InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);
         }

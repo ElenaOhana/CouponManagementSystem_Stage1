@@ -317,7 +317,7 @@ public class CouponsDBDAO implements CouponsDAO { // CouponsDBDAO is Singleton
 
     @Override
     public List<Customer> getCustomersIdFromCustomersVsCoupons(int couponId) throws SQLException {
-        List<Customer> customerList = null;
+        List<Customer> customerList = null; //Todo?? int[] customerId
         Connection connection = connectionPool.getConnection();
         Customer customer;
         String queryTempGetCustomersCoupons = "SELECT * FROM customers_vs_coupons where couponId = ?";
@@ -325,7 +325,7 @@ public class CouponsDBDAO implements CouponsDAO { // CouponsDBDAO is Singleton
             preparedStatement.setInt(1, couponId);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    int id = resultSet.getInt("id");
+                    int id = resultSet.getInt("customerId");//Todo get the only customerId!!
                     String firstName = resultSet.getString("FirstName");
                     String lastName = resultSet.getString("LastName");
                     String email = resultSet.getString("Email");

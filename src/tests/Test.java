@@ -1,39 +1,41 @@
 package tests;
 
+import DB.DAO.CouponsDAO;
 import DB.DAO.CouponsDBDAO;
 import DB.DAO.CustomersDBDAO;
 import DB.DBPseudoDataManager;
 import businesslogic.facade.AdminFacade;
-import businesslogic.facade.CompanyFacade;
 import exceptions.CouponSystemException;
 import exceptions.InternalSystemException;
 import exceptions.TestException;
 import java_beans_entities.*;
 import login.ClientType;
 import login.LoginManager;
+import org.omg.CORBA.ObjectHelper;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Test {
-    public static void testAll() {
 
-        DBPseudoDataManager.dropCreateTables();
-        try {
-            DBPseudoDataManager.createCategories(new Category("Shopping"));
-            DBPseudoDataManager.createCategories(new Category("Pharmacy"));
-            DBPseudoDataManager.createCategories(new Category("Spa and wellness"));
-            DBPseudoDataManager.createCategories(new Category("Traveling"));
-        } catch (SQLException | InternalSystemException e) {
-            e.printStackTrace();
-        }
+    public void testAll() {// TODO to check Thread
 
-        try {
-            facadeTesting();
-        } catch (TestException e) {
-            e.printStackTrace();
-        }
+            DBPseudoDataManager.dropCreateTables();
+            try {
+                DBPseudoDataManager.createCategories(new Category("Shopping"));
+                DBPseudoDataManager.createCategories(new Category("Pharmacy"));
+                DBPseudoDataManager.createCategories(new Category("Spa and wellness"));
+                DBPseudoDataManager.createCategories(new Category("Traveling"));
+            } catch (SQLException | InternalSystemException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                facadeTesting();
+            } catch (TestException e) {
+                e.printStackTrace();
+            }
     }
 
     private static void facadeTesting() throws TestException {
@@ -120,6 +122,34 @@ public class Test {
         }
         System.out.println();
 
+        /// // //// / ////////////////////////////////////////////
+        System.out.println("/// // //// / ////////////////////////////////////////////");
+        System.out.println(tab + "ADD_CUSTOMER METHOD TESTING:");
+        try {
+            System.out.println(tab + "------------PROPER CASE------------");
+            adminFacade.addCustomer(new Customer("Maria", "Gohovich","maria_go@gmail.com", "1111")); /* Should create a new customer successfully */
+            System.out.println(tab + "Create a new customer successfully");
+            System.out.println(tab + "-----------------------------------");
+        } catch (CouponSystemException e) {
+            e.printStackTrace();
+        }
+        try {
+            System.out.println(tab + "---------------ERROR---------------");
+            adminFacade.addCustomer(new Customer("Maria", "Gohovich","maria_go@gmail.com", "1111")); /* Should provide an error: "MySQLIntegrityConstraintViolationException: Duplicate entry 'maria_go@gmail.com' for key 'Email_UNIQUE', because we trying to create Customer with the same email."*/
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getCause());
+            System.out.println(tab + "-----------------------------------");
+        }
+        try {
+            System.out.println(tab + "---------------ERROR---------------");
+            Customer customer = null;
+            adminFacade.addCustomer(customer); /* Should provide an error: "Customer is not found error"*/
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getMessage());
+            System.out.println(tab + "-----------------------------------");
+        }
+        System.out.println();
+
         System.out.println(tab + "DELETE METHOD TESTING:");
         try {
             System.out.println(tab + "---------------ERROR---------------");
@@ -129,7 +159,10 @@ public class Test {
             System.out.println(tab + "-----------------------------------");
         }
 
+        //Coupon coupon = new Coupon()
         createCouponInDatabase();
+        //Coupon coupon = getCouponFromDatabase();
+
         try {
             System.out.println(tab + "------------PROPER CASE------------");
             adminFacade.deleteCompanyAsChangeStatus(new Company(3, "New Farm","new_farm@company.com", "2222").getId()); /* Should change status (==delete) an existing company (New Farm). */
@@ -139,10 +172,13 @@ public class Test {
             e.printStackTrace();
         }
 
-        createCustomerInDatabase();
+       /* createCustomerInDatabase();
+        Customer customer = customersDBDAO.getOneCustomer(customer.getId());
+
+        createCustomerPurchaseInDatabase(customer.getId(), coupon.getId());*/
         try {
             System.out.println(tab + "------------PROPER CASE------------");
-            adminFacade.deleteCompanyAsChangeStatus(new Company(3, "New Farm","new_farm@company.com", "2222").getId()); /* Should change status (==delete) an existing company (New Farm). */
+            adminFacade.deleteCompanyAsChangeStatus(new Company(3, "New Farm","new_farm@company.com", "2222").getId()); /* Should change status (==delete) an existing coupons (New Farm). */
             System.out.println(tab + "Delete/change status customer successfully");
             System.out.println(tab + "-----------------------------------");
         } catch (CouponSystemException e) {
@@ -183,36 +219,59 @@ public class Test {
         //System.out.println("-------------------------------------Customer Facade Test-----------------------------------------");
     }
 
+   /* private static Coupon getCouponFromDatabase(int couponId) {
+        CouponsDAO couponsDBDAO = CouponsDBDAO.getInstance();
+        Coupon coupon;
+        try {
+            coupon = couponsDBDAO.getOneCoupon(couponId);
+        } catch (SQLException |InternalSystemException e) {
+            e.printStackTrace();
+        return coupon;
+
+    }
+
     private static void createCustomerInDatabase() {
         CustomersDBDAO customersDBDAO = CustomersDBDAO.getInstance();
+        Customer customer = new Customer("Ron", "Goldberg", "ron_gold12", "3456");
         try {
-            customersDBDAO.addCustomer(new Customer("Ron", "Goldberg", "ron_gold12", "3456"));
+            customersDBDAO.addCustomer(customer);
         } catch (SQLException |InternalSystemException e) {
             e.printStackTrace();
         }
-    }
+    }*/
+
+        //Todo must be
+    /*private static void createCustomerPurchaseInDatabase(int customerId, int couponId) {
+        CouponsDBDAO couponsDBDAO = CouponsDBDAO.getInstance();
+        try {
+            couponsDBDAO.addCouponPurchase(customerId, couponId);
+        } catch (SQLException |InternalSystemException e) {
+            e.printStackTrace();
+        }
+    }*/
 
     private static void createCouponInDatabase() {
         LocalDateTime startDate = LocalDateTime.parse("2021-12-03 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime endDate = LocalDateTime.parse("2021-12-05 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         CouponsDBDAO couponsDBDAO = CouponsDBDAO.getInstance();
+        Coupon coupon = new Coupon( 3, 2, "Body lotion", "Body wellness", startDate, endDate, 30, 300, "image");
         try {
             if (couponsDBDAO != null) {
-                couponsDBDAO.addCoupon(new Coupon( 3, 2, "Body lotion", "Body wellness", startDate, endDate, 30, 300, "image"));
+                couponsDBDAO.addCoupon(coupon);
             }
         } catch (SQLException | InternalSystemException e) {
             e.printStackTrace();
         }
     }
 
-    private static Coupon addCouponWithRightCompanyId() throws TestException{
+    private static Coupon createCouponWithRightCompanyId() throws TestException{
         LocalDateTime startDate = LocalDateTime.parse("2021-12-03 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime endDate = LocalDateTime.parse("2021-12-05 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         Coupon coupon = new Coupon(1, 1, 3, "Family hofesh", "Family spa rest with babes", startDate, endDate, 30, 300, "image");
         return coupon;
     }
 
-    private static Coupon addCouponWithWrongCompanyId() throws TestException{
+    private static Coupon createCouponWithWrongCompanyId() throws TestException{
         LocalDateTime startDate = LocalDateTime.parse("2021-12-03 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime endDate = LocalDateTime.parse("2021-12-05 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         Coupon coupon = new Coupon(1, 3, 3, "Nofesh", "Spa in Galil", startDate, endDate, 30, 300, "image");

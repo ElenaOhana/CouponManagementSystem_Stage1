@@ -50,7 +50,7 @@ public class ConnectionPool { // ConnectionPool is Singleton
                 throw new RuntimeException("DB synchronized connection error");
             }
         } else {
-            connection = freeConnections.iterator().next(); // get from set
+            connection = freeConnections.iterator().next(); /* get() from set by iterator().next() */
             usedConnections.add(connection);
             freeConnections.remove(connection);
         }
@@ -58,7 +58,7 @@ public class ConnectionPool { // ConnectionPool is Singleton
     }
 
     public synchronized void restoreConnection(Connection connection) {
-        if (usedConnections.contains(connection)) { // I check here if the connection that I return is the same connection that I received.
+        if (usedConnections.contains(connection)) { /* I check here if the connection that I return is the same connection that I received. */
             if (freeConnections.size() < MAX_AMOUNT_CONNECTIONS) {
                 freeConnections.add(connection);
           /*  try {
