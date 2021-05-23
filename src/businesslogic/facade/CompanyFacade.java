@@ -63,7 +63,7 @@ public class CompanyFacade extends ClientFacade {
     public void addCoupon(Coupon coupon) throws CouponSystemException {
         try {
             if (coupon != null) {
-                if (coupon.getCompanyId() == companyId) { // TODO to check in all places where we (have to check Login) if the coupons.companyId == companyId
+                if (coupon.getCompanyId() == companyId) {
                     List<Coupon> couponList = couponsDAO.getCompanyCouponsByCompanyId(companyId);
                     if (!couponList.contains(coupon)) {
                         couponsDAO.addCoupon(coupon);
@@ -83,7 +83,9 @@ public class CompanyFacade extends ClientFacade {
     public void updateCoupon(Coupon coupon) throws CouponSystemException {
         try {
             if (coupon != null) {
-                couponsDAO.updateCoupon(coupon);
+                if (coupon.getCompanyId() == companyId) {
+                    couponsDAO.updateCoupon(coupon);
+                }
             }
         } catch (InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);

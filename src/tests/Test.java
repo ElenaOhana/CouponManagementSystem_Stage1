@@ -230,94 +230,140 @@ public class Test {
             }
         }
 
-            System.out.println();
-            System.out.println(tab + "UPDATE_CUSTOMER METHOD TESTING:");
-            try {
-                System.out.println(tab + "---------------ERROR---------------");
-                adminFacade.updateCustomer(new Customer(2, "Maria", "Gohovich", "maria_go@gmail.com", "1111")); /* Should provide "Update Customer failed, no rows affected." error, because we trying update an id customer. */
-            } catch (CouponSystemException e) {
-                System.out.println(tab + e.getMessage() + e.getCause());
-                System.out.println(tab + "-----------------------------------");
-            }
-            try {
-                System.out.println(tab + "------------PROPER CASE------------");
-                adminFacade.updateCustomer(new Customer(1, "Maria", "Gorovich", "maria_go@gmail.com", "1111"));/* Should update an existing customer by id. */
-                System.out.println(tab + "Updating a customer successfully");
-                System.out.println(tab + "-----------------------------------");
-            } catch (CouponSystemException e) {
-                e.printStackTrace();
-            }
-            System.out.println();
-            System.out.println(tab + "GET_ALL_CUSTOMERS METHOD TESTING:");
-            try {
-                System.out.println(tab + "------------PROPER CASE------------");
-                List<Customer> customerList = adminFacade.getAllCustomers();
-                System.out.println(tab + "Getting all customers successfully");
-                System.out.println(tab + customerList);
-                System.out.println(tab + "-----------------------------------");
-            } catch (CouponSystemException e) {
-                e.printStackTrace();
-            }
-            System.out.println();
-            System.out.println(tab + "GET_ALL_COMPANIES METHOD TESTING:");
-            try {
-                System.out.println(tab + "------------PROPER CASE------------");
-                List<Company> companiesList = adminFacade.getAllCompanies();
-                System.out.println(tab + "Getting all companies successfully");
-                System.out.println(tab + companiesList);
-                System.out.println(tab + "-----------------------------------");
-            } catch (CouponSystemException e) {
-                e.printStackTrace();
-            }
-            System.out.println();
-            System.out.println(tab + "GET_ONE_CUSTOMER METHOD TESTING:");
-            try {
-                System.out.println(tab + "------------PROPER CASE------------");
-                Customer customer = adminFacade.getOneCustomer(1);
-                System.out.println(tab + "Getting one customer successfully");
-                System.out.println(tab + customer);
-                System.out.println(tab + "-----------------------------------");
-            } catch (CouponSystemException e) {
-                e.printStackTrace();
-            }
-            System.out.println();
-            System.out.println(tab + "GET_ONE_COMPANY METHOD TESTING:");
-            try {
-                System.out.println(tab + "------------PROPER CASE------------");
-                Company company= adminFacade.getOneCompany(1);
-                System.out.println(tab + "Getting one company successfully");
-                System.out.println(tab + company);
-                System.out.println(tab + "-----------------------------------");
-            } catch (CouponSystemException e) {
-                e.printStackTrace();
-            }
+        System.out.println();
+        System.out.println(tab + "UPDATE_CUSTOMER METHOD TESTING:");
+        try {
+            System.out.println(tab + "---------------ERROR---------------");
+            adminFacade.updateCustomer(new Customer(2, "Maria", "Gohovich", "maria_go@gmail.com", "1111")); /* Should provide "Update Customer failed, no rows affected." error, because we trying update an id customer. */
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getMessage() + e.getCause());
+            System.out.println(tab + "-----------------------------------");
+        }
+        try {
+            System.out.println(tab + "------------PROPER CASE------------");
+            adminFacade.updateCustomer(new Customer(1, "Maria", "Gorovich", "maria_go@gmail.com", "1111"));/* Should update an existing customer by id. */
+            System.out.println(tab + "Updating a customer successfully");
+            System.out.println(tab + "-----------------------------------");
+        } catch (CouponSystemException e) {
+            e.printStackTrace();
+        }
+        System.out.println();
+        System.out.println(tab + "GET_ALL_CUSTOMERS METHOD TESTING:");
+        try {
+            System.out.println(tab + "------------PROPER CASE------------");
+            List<Customer> customerList = adminFacade.getAllCustomers();
+            System.out.println(tab + "Getting all customers successfully");
+            System.out.println(tab + customerList);
+            System.out.println(tab + "-----------------------------------");
+        } catch (CouponSystemException e) {
+            e.printStackTrace();
+        }
+        System.out.println();
+        System.out.println(tab + "GET_ALL_COMPANIES METHOD TESTING:");
+        try {
+            System.out.println(tab + "------------PROPER CASE------------");
+            List<Company> companiesList = adminFacade.getAllCompanies();
+            System.out.println(tab + "Getting all companies successfully");
+            System.out.println(tab + companiesList);
+            System.out.println(tab + "-----------------------------------");
+        } catch (CouponSystemException e) {
+            e.printStackTrace();
+        }
+        System.out.println();
+        System.out.println(tab + "GET_ONE_CUSTOMER METHOD TESTING:");
+        try {
+            System.out.println(tab + "------------PROPER CASE------------");
+            Customer customer = adminFacade.getOneCustomer(1);
+            System.out.println(tab + "Getting one customer successfully");
+            System.out.println(tab + customer);
+            System.out.println(tab + "-----------------------------------");
+        } catch (CouponSystemException e) {
+            e.printStackTrace();
+        }
+        System.out.println();
+        System.out.println(tab + "GET_ONE_COMPANY METHOD TESTING:");
+        try {
+            System.out.println(tab + "------------PROPER CASE------------");
+            Company company = adminFacade.getOneCompany(1);
+            System.out.println(tab + "Getting one company successfully");
+            System.out.println(tab + company);
+            System.out.println(tab + "-----------------------------------");
+        } catch (CouponSystemException e) {
+            e.printStackTrace();
+        }
 
         System.out.println("///////////////////////////////////////////////////////////////////////////////////////////////////");
         System.out.println("-------------------------------------Company Facade Test-----------------------------------------");
-        CompanyFacade companyFacade;
+        CompanyFacade companyZaraFacade = null;
+        Coupon coupon2;
+
+        System.out.println(tab + "LOGIN_COMPANY METHOD TESTING:");
         try {
-            companyFacade = (CompanyFacade) LoginManager.login("zara_women@newFarm.com", "ZARA123", ClientType.COMPANY);
-
-            Coupon coupon2 = createCouponWithRightCompanyId();
-            if (companyFacade != null) {
-                companyFacade.addCoupon(coupon2);
-            } else {
-                System.out.println("companyFacade is null because wrong credentials");
-            }
-
-            Coupon coupon = createCouponWithWrongCompanyId();
-            if (companyFacade != null) {
-                companyFacade.addCoupon(coupon);
-            } else {
-                System.out.println("companyFacade is null because wrong credentials");
-            }
-
-            if (companyFacade != null) {
-                companyFacade.updateCoupon(coupon2);
-            }
-        } catch ( CouponSystemException e) {
-            throw new TestException("Company Id is 3 instead of 1.", e);
+            System.out.println(tab + "---------------ERROR---------------");/* Should provide "Wrong admin credentials" error. */
+            companyZaraFacade = (CompanyFacade) LoginManager.login("za_women@newFarm.com", "ZARA123", ClientType.COMPANY);
+            System.out.println(companyZaraFacade);
+        }catch (CouponSystemException e) {
+            System.out.println(e.getMessage() + e.getCause());
+            System.out.println(tab + "-----------------------------------");
         }
+        try {
+            System.out.println(tab + "------------PROPER CASE------------");
+            companyZaraFacade = (CompanyFacade) LoginManager.login("zara_women@newFarm.com", "ZARA123", ClientType.COMPANY);
+            System.out.println(tab + "Right company credentials");
+            System.out.println(tab + "-----------------------------------");
+        } catch (CouponSystemException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println();
+        System.out.println(tab + "ADD_COUPON METHOD TESTING:");
+        try {
+            System.out.println(tab + "------------PROPER CASE------------");
+            coupon2 = createCouponWithRightCompanyId(1);
+            if (companyZaraFacade != null) {
+                companyZaraFacade.addCoupon(coupon2);
+            }
+            System.out.println(tab + "Add coupon successfully");
+            System.out.println(tab + "-----------------------------------");
+        } catch (CouponSystemException e) {
+            e.printStackTrace();
+        }
+        try {
+            System.out.println(tab + "---------------ERROR---------------");
+            Coupon coupon = createCouponWithWrongCompanyId(3); /* Create coupon of Company that didn't login */
+            if (companyZaraFacade != null) {
+                companyZaraFacade.addCoupon(coupon); // /*Should provide an error because we adding a coupon that doesn't belong to Zara Company */
+            }
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getMessage());
+            System.out.println(tab + "-----------------------------------");
+        }
+//////////////////////////////////////////////////TODO UPDATE_COUPON
+        System.out.println();
+        System.out.println(tab + "UPDATE_COUPON METHOD TESTING:");
+        try {
+            System.out.println(tab + "------------PROPER CASE------------");
+            coupon2 = createCouponWithRightCompanyId(1);
+            if (companyZaraFacade != null) {
+                companyZaraFacade.updateCoupon(coupon2);
+            }
+            System.out.println(tab + "Update coupon successfully");
+            System.out.println(tab + "-----------------------------------");
+        } catch (CouponSystemException e) {
+            e.printStackTrace();
+        }
+        try {
+            System.out.println(tab + "---------------ERROR---------------");
+            Coupon coupon = createCouponWithWrongCompanyId(3); /* Create coupon of Company that didn't login */
+            if (companyZaraFacade != null) {
+                companyZaraFacade.addCoupon(coupon); // /*Should provide an error because we adding a coupon that doesn't belong to Zara Company */
+            }
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getMessage());
+            System.out.println(tab + "-----------------------------------");
+        }
+
+
 
 
         //System.out.println("///////////////////////////////////////////");
@@ -386,17 +432,17 @@ public class Test {
         }
     }
 
-    private static Coupon createCouponWithRightCompanyId(){
+    private static Coupon createCouponWithRightCompanyId(int companyId) {
         LocalDateTime startDate = LocalDateTime.parse("2021-12-03 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime endDate = LocalDateTime.parse("2021-12-05 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        Coupon coupon = new Coupon(1, 1, 3, "Family hofesh", "Family spa rest with babes", startDate, endDate, 1, 300, "image");
+        Coupon coupon = new Coupon(1, companyId, 3, "Family hofesh", "Family spa rest with babes", startDate, endDate, 1, 300, "image");
         return coupon;
     }
 
-    private static Coupon createCouponWithWrongCompanyId() {
+    private static Coupon createCouponWithWrongCompanyId(int companyId) {
         LocalDateTime startDate = LocalDateTime.parse("2021-12-03 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime endDate = LocalDateTime.parse("2021-12-05 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        Coupon coupon = new Coupon(1, 3, 3, "Nofesh", "Spa in Galil", startDate, endDate, 1, 300, "image");
+        Coupon coupon = new Coupon(1, companyId, 3, "Nofesh", "Spa in Galil", startDate, endDate, 1, 300, "image");
         return coupon;
     }
 }
