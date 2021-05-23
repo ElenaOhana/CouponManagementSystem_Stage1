@@ -6,7 +6,7 @@ public class Program {
     public static void main(String[] args) {
         CouponSystemManager couponSystemManager = CouponSystemManager.getInstance();
         Test test = new Test();
-        test.testAll(); /* testAll() method is synchronized */
+        test.testAll();
         CouponExpirationDailyJob couponExpirationDailyJob = couponSystemManager.startJob();
 
         synchronized (couponExpirationDailyJob) {

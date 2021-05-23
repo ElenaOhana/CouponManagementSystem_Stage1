@@ -58,10 +58,9 @@ public class CouponExpirationDailyJob implements Runnable {
             for (Customer customer : customerList) {
                 couponList = customer.getCoupons();
                 int customerId = customer.getId();
-                System.out.println(couponList);
+                System.out.println("couponList from Thread " + couponList); // TODO
                 if (couponList == null) {
                     throw new NotFoundException("There are not coupons purchase for customer: " + customer);
-                    //System.out.println("There are not coupons purchase for customer:  " + customer);
                 } else {
                     for (Coupon coupon : couponList) {
                         int couponId = coupon.getId();
@@ -76,15 +75,9 @@ public class CouponExpirationDailyJob implements Runnable {
                 }
 
             }
-//           /* while (couponList == null){
-//                wait();
-//            }*/
-//
         } catch (SQLException | InternalSystemException | NotFoundException e) {
             throw new RuntimeException("DB error from CouponExpirationDailyJob.", e);
-        } /*catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
+        }
         finally {
             this.notifyAll();
         }

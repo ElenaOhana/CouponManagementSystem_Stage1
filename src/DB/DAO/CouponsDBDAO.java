@@ -252,10 +252,10 @@ public class CouponsDBDAO implements CouponsDAO { // CouponsDBDAO is Singleton
         }
     }
 
-    @Override //FIXME join: "SELECT * FROM coupons as c join customers_vs_coupons as `cvc` on `cvc.CustomerId` = ?"
+    @Override
     public List<Coupon> getCustomerCouponsByCustomerId(int customerId) throws SQLException {
-        Connection connection = connectionPool.getConnection(); // TODO to check join Java - צריך גרשיים על אלייס- NO??
-        final String queryTempGetCouponListByCustomerId = "SELECT * FROM coupons as c join customers_vs_coupons as cvc on `cvc.CustomerId` = ? AND `cvc.couponId` = c.id";
+        Connection connection = connectionPool.getConnection();
+        final String queryTempGetCouponListByCustomerId = "SELECT * FROM coupons as c join customers_vs_coupons as cvc on cvc.CustomerId = ? WHERE cvc.couponId = c.id";
         Coupon coupon;
         List<Coupon> couponList = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetCouponListByCustomerId)) {
@@ -316,30 +316,21 @@ public class CouponsDBDAO implements CouponsDAO { // CouponsDBDAO is Singleton
     }
 
     @Override
-    public List<Customer> getCustomersIdFromCustomersVsCoupons(int couponId) throws SQLException {
-        List<Customer> customerList = null; //Todo?? int[] customerId
+    public List<Integer> getCustomersIdFromCustomersVsCoupons(int couponId) throws SQLException {
+        List<Integer> customerIdList = new ArrayList<>();
         Connection connection = connectionPool.getConnection();
-        Customer customer;
-        String queryTempGetCustomersCoupons = "SELECT * FROM customers_vs_coupons where couponId = ?";
+        String queryTempGetCustomersCoupons = "SELECT customerId FROM customers_vs_coupons where couponId = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetCustomersCoupons)) {
             preparedStatement.setInt(1, couponId);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    int id = resultSet.getInt("customerId");//Todo get the only customerId!!
-                    String firstName = resultSet.getString("FirstName");
-                    String lastName = resultSet.getString("LastName");
-                    String email = resultSet.getString("Email");
-                    String password = resultSet.getString("Password");
-                    String status = resultSet.getString("customer.status");
-
-                    ClientStatus customerStatus = ClientStatus.valueOf(status);
-                    customer = new Customer(id, firstName,lastName,email,password);
-                    customerList.add(customer);
+                    Integer id = resultSet.getInt("customerId");
+                    customerIdList.add(id);
                 }
             }
         } finally {
             connectionPool.restoreConnection(connection);
         }
-        return customerList;
+        return customerIdList;
     }
 }

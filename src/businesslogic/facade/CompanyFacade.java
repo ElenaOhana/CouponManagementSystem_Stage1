@@ -3,6 +3,7 @@ package businesslogic.facade;
 import exceptions.CouponSystemException;
 import exceptions.InternalSystemException;
 import java_beans_entities.Category;
+import java_beans_entities.ClientStatus;
 import java_beans_entities.Company;
 import java_beans_entities.Coupon;
 
@@ -39,10 +40,16 @@ public class CompanyFacade extends ClientFacade {
         int companyId = 0;
         try {
             if (companiesDAO.isCompanyExists(email, password)) {
-                try {
-                    companyId = companiesDAO.loginCompany(email);
-                } catch (SQLException e) {
-                    throw new CouponSystemException("DB error.", e);
+                Company company = companiesDAO.getCompanyByEmail(email);
+                ClientStatus companyStatus = company.getClientStatus();
+                if (companyStatus != ClientStatus.INACTIVE) { /* The Company that was deleted(has the INACTIVE status) can not login */
+                    try {
+                        companyId = companiesDAO.loginCompany(email);
+                    } catch (SQLException e) {
+                        throw new CouponSystemException("DB error.", e);
+                    }
+                } else {
+                    throw new CouponSystemException("Company does not exists/Status is INACTIVE");
                 }
             }
         } catch (SQLException e) {

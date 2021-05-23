@@ -9,7 +9,7 @@ public class Customer {
     private String lastName;
     private String email;
     private String password;
-    private ArrayList<Coupon> coupons;
+    private ArrayList<Coupon> coupons = new ArrayList<>();
     private ClientStatus clientStatus = ClientStatus.ACTIVE;
 
     public Customer(int id, String firstName, String lastName, String email, String password) {

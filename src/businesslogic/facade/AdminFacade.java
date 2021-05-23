@@ -68,21 +68,21 @@ public class AdminFacade extends ClientFacade {
     }
 
     public void deleteCompanyAsChangeStatus(int companyId) throws CouponSystemException {
-        List<Customer> customerList;
+        List<Integer> customerIdList;
         try {
             List<Coupon> couponList = couponsDAO.getCompanyCouponsByCompanyId(companyId);
             for (Coupon coupon : couponList) {
-                couponsDAO.deleteCouponAsChangeStatus(coupon.getId()); /* Delete/ChangeStatus all coupons that Company created */
-
-                customerList = couponsDAO.getCustomersIdFromCustomersVsCoupons(coupon.getId());
-                System.out.println(customerList);
-                if (customerList != null) {
-                    for (Customer customer : customerList) {
-                        customersDAO.deleteCustomerAsChangeStatus(customer.getId());/* Delete/ChangeStatus all coupons that Customer purchase */
+                couponsDAO.deleteCouponAsChangeStatus(coupon.getId()); /* Delete(as change status of) all coupons that Company created */
+                customerIdList = couponsDAO.getCustomersIdFromCustomersVsCoupons(coupon.getId());
+                if (customerIdList != null) {
+                    for (Integer customerId : customerIdList) {
+                        customersDAO.deleteCustomerPurchase(customerId); /* Delete customer purchase */
                     }
+                } else {
+                    throw new NotFoundException("customerIdList not found " + customerIdList);
                 }
             }
-            companiesDAO.deleteCompanyAsChangeStatus(companyId);
+            companiesDAO.deleteCompanyAsChangeStatus(companyId); /* Delete(as change status of) company */
 
         } catch (SQLException | InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);
@@ -92,7 +92,11 @@ public class AdminFacade extends ClientFacade {
     public List<Company> getAllCompanies() throws CouponSystemException {
         List<Company> companiesList;
         try {
-            companiesList = companiesDAO.getAllCompanies(); //I'm return a whole object
+            companiesList = companiesDAO.getAllCompanies(); //I'm return a whole object of Company
+            for (Company company : companiesList) {
+                ArrayList<Coupon> couponsOfCompany = (ArrayList<Coupon>) couponsDAO.getCompanyCouponsByCompanyId(company.getId());
+                company.setCoupons(couponsOfCompany);
+            }
         } catch (SQLException e) {
                 throw new CouponSystemException("DB error.", e);
         }
@@ -103,6 +107,7 @@ public class AdminFacade extends ClientFacade {
         Company company;
         try {
             company = companiesDAO.getOneCompany(companyID);
+            company.setCoupons((ArrayList<Coupon>) couponsDAO.getCompanyCouponsByCompanyId(companyID));
         } catch (SQLException | InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);
         }
@@ -112,7 +117,7 @@ public class AdminFacade extends ClientFacade {
     public void addCustomer(Customer customer) throws CouponSystemException {
         try {
             if (customer != null) {
-                customersDAO.addCustomer(customer);
+                customersDAO.addCustomerWithReturnCustomer(customer);
             } else throw new NotFoundException("Customer is not found") ;
         } catch (SQLException | InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);
@@ -130,6 +135,7 @@ public class AdminFacade extends ClientFacade {
     public void deleteCustomerAsChangeStatus(int customerID) throws CouponSystemException {
         try {
             customersDAO.deleteCustomerAsChangeStatus(customerID);
+            customersDAO.deleteCustomerPurchase(customerID);
         } catch (SQLException | InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);
         }
@@ -139,6 +145,10 @@ public class AdminFacade extends ClientFacade {
         List<Customer> customerList;
         try {
             customerList = customersDAO.getAllCustomers();
+            for (Customer customer : customerList) { //I'm return a whole object of Customer
+                ArrayList<Coupon> customerCoupons = (ArrayList<Coupon>) couponsDAO.getCustomerCouponsByCustomerId(customer.getId());
+                customer.setCoupons(customerCoupons);
+            }
         } catch (SQLException e) {
             throw new CouponSystemException("DB error.", e);
         }
@@ -149,6 +159,7 @@ public class AdminFacade extends ClientFacade {
         Customer customer;
         try {
             customer = customersDAO.getOneCustomer(customerID);
+            customer.setCoupons((ArrayList<Coupon>) couponsDAO.getCustomerCouponsByCustomerId(customerID));
         } catch (SQLException | InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);
         }

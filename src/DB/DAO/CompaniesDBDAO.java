@@ -117,8 +117,6 @@ public class CompaniesDBDAO implements CompaniesDAO { // CompaniesDBDAO is Singl
                     ClientStatus clientStatus = ClientStatus.valueOf(status);
                     Company company = new Company(id, name, email, password, clientStatus);
                     companies.add(company);
-                    ArrayList<Coupon> couponsOfCompany = company.getCoupons(); //TODO check in main foreach company.getCoupons()
-                    company.setCoupons(couponsOfCompany);
                 }
             }
         } finally {
@@ -200,27 +198,30 @@ public class CompaniesDBDAO implements CompaniesDAO { // CompaniesDBDAO is Singl
         return result;
     }*/
 
-    /*@Override
-    public boolean isCompanyEmailExists(String email) throws SQLException {
-        final String queryTempGetCompanyEmail = "SELECT `email` FROM `Companies` WHERE `email` = ?";
+    @Override
+    public Company getCompanyByEmail(String email) throws SQLException, InternalSystemException {
+        final String queryTempGetCompanyByEmail = "SELECT * FROM `Companies` WHERE `email` = ?";
         Connection connection = connectionPool.getConnection();
-        boolean result = false;
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetCompanyEmail)) {
+        Company company;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetCompanyByEmail)) {
             preparedStatement.setString(1, email);
-            preparedStatement.executeQuery();
-            try (ResultSet resultSet = preparedStatement.getResultSet()) {
-                boolean emailExists = resultSet.getString("name").equalsIgnoreCase(email);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    if (emailExists) {
-                        result = true;
-                    }
+                    int id = resultSet.getInt("id");
+                    String name = resultSet.getString("name");
+                    String password = resultSet.getString("password");
+                    String status = resultSet.getString("Status");
+                    ClientStatus clientStatus = ClientStatus.valueOf(status);
+                    company = new Company(id, name, email, password, clientStatus);
+                } else {
+                    throw new InternalSystemException("Creating company failed, no ID obtained.");
                 }
             }
         } finally {
             connectionPool.restoreConnection(connection);
         }
-        return result;
-    }*/
+        return company;
+    }
 
     @Override
     public int loginCompany(String email) throws SQLException {

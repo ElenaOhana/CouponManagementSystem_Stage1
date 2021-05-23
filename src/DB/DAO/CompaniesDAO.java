@@ -24,7 +24,7 @@ public interface CompaniesDAO {
 
      //boolean isCompanyNameExists(String name) throws SQLException;
 
-     //boolean isCompanyEmailExists(String email) throws SQLException;
+     Company getCompanyByEmail(String email) throws SQLException, InternalSystemException;
 
      int loginCompany(String email) throws SQLException;
 

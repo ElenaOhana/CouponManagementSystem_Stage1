@@ -6,7 +6,7 @@ import exceptions.CouponSystemException;
 public class LoginManager { // LoginManager is Singleton
     private static LoginManager instance;
 
-    private LoginManager() { //private Constructor
+    private LoginManager() {
     }
 
     public static LoginManager getInstance() {
@@ -23,7 +23,7 @@ public class LoginManager { // LoginManager is Singleton
             return adminFacade;
             }
         } else if (clientType == ClientType.COMPANY) {
-            if (CompanyFacade.login(email,password)) { // company exists
+            if (CompanyFacade.login(email,password)) {
                 int companyId = CompanyFacade.loginCompanyReturnId(email,password);
                 ClientFacade companyFacade = new CompanyFacade(companyId);
                 return  companyFacade;

@@ -12,6 +12,8 @@ public interface CustomersDAO {
 
      void addCustomer(Customer customer) throws SQLException, InternalSystemException;
 
+     Customer addCustomerWithReturnCustomer(Customer customer) throws SQLException, InternalSystemException;
+
      void updateCustomer(Customer customer) throws SQLException, InternalSystemException;
 
      void deleteCustomerAsChangeStatus(int customerID) throws SQLException, InternalSystemException;
@@ -20,5 +22,9 @@ public interface CustomersDAO {
 
      Customer getOneCustomer(int customerID) throws SQLException, InternalSystemException;
 
-    int loginCustomer(String email, String password) throws SQLException;
+     int loginCustomer(String email) throws SQLException;
+
+     void deleteCustomerPurchase(Integer customerId) throws SQLException;
+
+     Customer getCustomerByEmail(String email) throws SQLException, InternalSystemException;
 }

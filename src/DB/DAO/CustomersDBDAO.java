@@ -5,10 +5,7 @@ import exceptions.InternalSystemException;
 import java_beans_entities.ClientStatus;
 import java_beans_entities.Customer;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,21 +28,19 @@ public class CustomersDBDAO implements CustomersDAO { // CustomersDBDAO is Singl
 
     @Override
     public boolean isCustomerExists(String email, String password) throws SQLException, InternalSystemException {
-        final String queryTempGetEmailAndPassword = "SELECT `email`, `password` FROM `customers` WHERE `email` = ? AND `password` = ?";
+        final String queryTempGetEmailAndPassword = "SELECT `email`, `password` FROM `customers` WHERE `email` = ?";
         Connection connection = connectionPool.getConnection();
         boolean result = false;
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetEmailAndPassword)) {
             preparedStatement.setString(1, email);
-            preparedStatement.setString(2, password);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                boolean emailsEquals = resultSet.getString("email").equalsIgnoreCase(email);
-                boolean passwordsEquals = resultSet.getString("password").equalsIgnoreCase(password);
-                if (resultSet.next()) {
-                    if (emailsEquals && passwordsEquals) {
-                        result = true;
-                    } else {
-                        throw new InternalSystemException(" Wrong credentials.");
-                    }
+            preparedStatement.execute();
+
+            ResultSet resultSet = preparedStatement.getResultSet();
+            if (resultSet.next()) {
+                if (resultSet.getString("Password").equalsIgnoreCase(password)) {
+                    result = true;
+                } else if (!resultSet.getString("Password").equalsIgnoreCase(password)) {
+                    throw new InternalSystemException(" Wrong credentials.");
                 }
             }
         } finally {
@@ -70,6 +65,32 @@ public class CustomersDBDAO implements CustomersDAO { // CustomersDBDAO is Singl
         } finally {
             connectionPool.restoreConnection(connection);
         }
+    }
+
+    @Override
+    public Customer addCustomerWithReturnCustomer(Customer customer) throws SQLException, InternalSystemException {
+        int id;
+        Connection connection = connectionPool.getConnection();
+        final String queryTempInsertCustomer = "INSERT INTO `customers` (`FirstName`, `LastName`, `email`, `password`) VALUES (?,?,?,?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempInsertCustomer, Statement.RETURN_GENERATED_KEYS)) {
+            preparedStatement.setString(1, customer.getFirstName());
+            preparedStatement.setString(2, customer.getLastName());
+            preparedStatement.setString(3, customer.getEmail());
+            preparedStatement.setString(4, customer.getPassword());
+            int row = preparedStatement.executeUpdate();
+            if (row == 0) {
+                throw new InternalSystemException("Creating customer failed, no rows affected.");
+            }
+            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    id = generatedKeys.getInt(1);
+                }
+                else throw new SQLException("Creating customer failed, no ID obtained.");
+            }
+        } finally {
+            connectionPool.restoreConnection(connection);
+        }
+        return new Customer(id, customer.getFirstName(), customer.getLastName(),customer.getEmail(),customer.getPassword());
     }
 
     @Override
@@ -160,26 +181,62 @@ public class CustomersDBDAO implements CustomersDAO { // CustomersDBDAO is Singl
     }
 
     @Override
-    public int loginCustomer(String email, String password) throws SQLException {
-        final String queryTempGetIdByEmailAndPassword = "SELECT `id` FROM `customers` WHERE `Email` = ? AND `Password` = ?";
+    public int loginCustomer(String email) throws SQLException {
+        final String queryTempGetIdByEmailAndPassword = "SELECT `id` FROM `customers` WHERE `Email` = ?";
         Connection connection = connectionPool.getConnection();
         int id = 0;
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetIdByEmailAndPassword)) {
             preparedStatement.setString(1, email);
-            preparedStatement.setString(2, password);
-            preparedStatement.executeQuery();
+            preparedStatement.execute();
             try (ResultSet resultSet = preparedStatement.getResultSet()) {
-                boolean emailsEquals = resultSet.getString("Email").equalsIgnoreCase(email);
-                boolean passwordsEquals = resultSet.getString("Password").equalsIgnoreCase(password);
                 if (resultSet.next()) {
-                    if (emailsEquals && passwordsEquals) {
-                        id = resultSet.getInt("id");
-                    }
+                    id = resultSet.getInt("id");
                 }
             }
         } finally {
             connectionPool.restoreConnection(connection);
         }
         return id;
+    }
+
+    @Override
+    public void deleteCustomerPurchase(Integer customerId) throws SQLException {
+        final String queryTempDeleteCustomerPurchase = "DELETE FROM `customers_vs_coupons` WHERE customerId = ?";
+        Connection connection = connectionPool.getConnection();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempDeleteCustomerPurchase)) {
+            preparedStatement.setInt(1, customerId);
+            int countRow  = preparedStatement.executeUpdate();
+            if (countRow == 0) {
+                throw new SQLException("Error delete customer purchase by customerId " + customerId);
+            }
+        } finally {
+            connectionPool.restoreConnection(connection);
+        }
+    }
+
+    @Override
+    public Customer getCustomerByEmail(String email) throws SQLException, InternalSystemException {
+        Connection connection = connectionPool.getConnection();
+        Customer customer;
+        final String queryTempGetCustomerByEmail = "SELECT * FROM `customers` WHERE `email` = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetCustomerByEmail)) {
+            preparedStatement.setString(1, email);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    String firstName = resultSet.getString("FirstName");
+                    String lastName = resultSet.getString("LastName");
+                    String password = resultSet.getString("password");
+                    String status = resultSet.getString("Status");
+                    ClientStatus customerStatus = ClientStatus.valueOf(status);
+                    customer = new Customer(id, firstName, lastName, email, password, customerStatus);
+                } else {
+                    throw new InternalSystemException("Creating customer failed, no ID obtained.");
+                }
+            }
+        } finally {
+            connectionPool.restoreConnection(connection);
+        }
+        return customer;
     }
 }
