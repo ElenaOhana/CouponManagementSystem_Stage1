@@ -56,16 +56,24 @@ public class CompanyFacade extends ClientFacade {
     }
 
     public void addCoupon(Coupon coupon) throws CouponSystemException {
+        boolean containsTitle = false;
+        int counter = 0;
         try {
             if (coupon != null) {
                 if (coupon.getCompanyId() == companyId) {
                     List<Coupon> couponList = couponsDAO.getCompanyCouponsByCompanyId(companyId);
-                    if (!couponList.contains(coupon)) {
-                        for (Coupon coupon1 : couponList) {
-                            if(!coupon1.getTitle().equalsIgnoreCase(coupon.getTitle())); {
-                                couponsDAO.addCoupon(coupon);
-                            }
+                    for (Coupon coupon1 : couponList) {
+                        String receiveTitle = coupon.getTitle();
+                        String fromDBTitle = coupon1.getTitle();
+                        if (receiveTitle.equals(fromDBTitle)) {
+                            counter++;
                         }
+                    }
+                    if (counter > 0) {
+                        containsTitle = true;
+                    }
+                    if (!couponList.contains(coupon) && !containsTitle) {
+                        couponsDAO.addCoupon(coupon);
                     } else {
                         throw new CouponSystemException("An error has occurred. The coupon already exists.");
                     }
@@ -84,6 +92,8 @@ public class CompanyFacade extends ClientFacade {
             if (coupon != null) {
                 if (coupon.getCompanyId() == companyId) {
                     couponsDAO.updateCoupon(coupon);
+                } else {
+                    throw new CouponSystemException("The action is illegal.");
                 }
             }
         } catch (InternalSystemException e) {
@@ -96,10 +106,14 @@ public class CompanyFacade extends ClientFacade {
     //Fixme
     public void deleteCoupon(int couponId) throws CouponSystemException {
         try {
-            couponsDAO.deleteCouponAsChangeStatus(couponId);
-            // todo from tirg
-            deleteCoupon(couponId);
-            //couponsDAO.deleteCouponPurchase(); // customerID ??? Holds customersList?
+            /*Coupon coupon = couponsDAO.getOneCoupon(couponId);
+            if (coupon.getCompanyId() == companyId) {*/
+                couponsDAO.deleteCouponAsChangeStatus(couponId);
+                // todo from tirg
+                deleteCoupon(couponId);
+                //couponsDAO.deleteCouponPurchase(); // customerID ??? Holds customersList?
+
+           // }
         } catch (SQLException | InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);
         }

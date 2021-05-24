@@ -325,9 +325,10 @@ public class Test {
         System.out.println(tab + "ADD_COUPON METHOD TESTING:");
         try {
             System.out.println(tab + "------------PROPER CASE------------");
-            coupon2 = createFamilyHofeshCoupon(1, 1);
+            coupon2 = createFamilyHofeshCoupon(1, 5);
             if (companyZaraFacade != null) {
                 companyZaraFacade.addCoupon(coupon2);
+                System.out.println(coupon2);
             }
             System.out.println(tab + "Add coupon successfully");
             System.out.println(tab + "-----------------------------------");
@@ -339,6 +340,7 @@ public class Test {
             Coupon coupon = createFamilyHofeshCoupon(1, 6); /* Create a coupon of Zara-Company that has the same title */
             if (companyZaraFacade != null) {
                 companyZaraFacade.addCoupon(coupon); /*Should provide an "The coupon already exists." error because we adding a new coupon with the same title to the company*/
+                System.out.println(coupon);
             }
         } catch (CouponSystemException e) {
             System.out.println(tab + e.getMessage());
@@ -346,7 +348,7 @@ public class Test {
         }
         try {
             System.out.println(tab + "---------------ERROR---------------");
-            Coupon coupon = createNofeshCoupon(3, 1); /* Create coupon of Company that didn't login */
+            Coupon coupon = createNofeshPacketCoupon(3, 1); /* Create coupon of Company that didn't login */
             if (companyZaraFacade != null) {
                 companyZaraFacade.addCoupon(coupon); /*Should provide an "The action is illegal" error because we adding a coupon that doesn't belong to Zara Company */
             }
@@ -369,36 +371,32 @@ public class Test {
             System.out.println(tab + "-----------------------------------");
         }
         System.out.println();
-        System.out.println("------Create new Company(CompanyId=4) and their Login in order to check: Adding a new coupon with the same title to another company------");
-        try {
-            adminFacade.addCompany(new Company("KalCar", "car_car@kalcar.co.il", "car5555"));
-        } catch (CouponSystemException e) {
-            e.printStackTrace();
-        }
-
+        System.out.println("------Create a new Company(KalCar, CompanyId=4) and his Login in order to check: Adding a new coupon with the same title to another company------");
         CompanyFacade kalCarCompany = null;
         try {
+            adminFacade.addCompany(new Company("KalCar", "car_car@kalcar.co.il", "car5555"));
             kalCarCompany = (CompanyFacade) LoginManager.login("car_car@kalcar.co.il", "car5555", ClientType.COMPANY);
         } catch (CouponSystemException e) {
             e.printStackTrace();
         }
-        try { // Login CompanyId 4 before
+
+        try {
             System.out.println(tab + "------------PROPER CASE------------");
-            coupon2 = createFamilyHofeshCoupon(4, 6); // Adding a new coupon with the same title to another company
+            coupon2 = createFamilyHofeshCoupon(4, 6);
             if (kalCarCompany != null) {
-                kalCarCompany.addCoupon(coupon2);
+                kalCarCompany.addCoupon(coupon2); /*Adding a new coupon with the same title to another company*/
             }
             System.out.println(tab + "Add coupon successfully");
             System.out.println(tab + "-----------------------------------");
         } catch (CouponSystemException e) {
             e.printStackTrace();
         }
-//////////////////////////////////////////////////TODO UPDATE_COUPON
+
         System.out.println();
         System.out.println(tab + "UPDATE_COUPON METHOD TESTING:");
         try {
             System.out.println(tab + "------------PROPER CASE------------");
-            coupon2 = createFamilyHofeshCoupon(1, 1);
+            coupon2 = createFamilyHofeshCoupon(1, 3); /* The login Company Zara(id=1) updated it's coupon */
             if (companyZaraFacade != null) {
                 companyZaraFacade.updateCoupon(coupon2);
             }
@@ -409,13 +407,38 @@ public class Test {
         }
         try {
             System.out.println(tab + "---------------ERROR---------------");
-            Coupon coupon = createNofeshCoupon(3,1); /* Create coupon of Company that didn't login */
+            Coupon coupon = createNofeshPacketCoupon(3,1);  /* Update coupon of Company that didn't login */
             if (companyZaraFacade != null) {
-                companyZaraFacade.addCoupon(coupon); /*Should provide an error because we adding a coupon that doesn't belong to Zara Company */
+                companyZaraFacade.updateCoupon(coupon); /*Should provide an error because we update a coupon that doesn't belong to Zara Company*/
             }
         } catch (CouponSystemException e) {
             System.out.println(tab + e.getMessage());
             System.out.println(tab + "-----------------------------------");
+        }
+        try {
+            System.out.println(tab + "---------------ERROR---------------");
+            Coupon coupon = createNofeshPacketCoupon(3,4);  /* Update companyId of coupon (of logined Company) is illegal */
+            if (companyZaraFacade != null) {
+                companyZaraFacade.updateCoupon(coupon); /* Should provide an error because we trying update a companyId of coupon */
+            }
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getMessage());
+            System.out.println(tab + "-----------------------------------");
+        }
+
+        System.out.println();
+        System.out.println(tab + "DELETE_COUPON METHOD TESTING:");
+        try {
+            System.out.println(tab + "------------PROPER CASE------------");
+            coupon2 = createNofeshPacketCoupon(1, 7);
+            if (companyZaraFacade != null) {
+                companyZaraFacade.addCoupon(coupon2);
+                companyZaraFacade.deleteCoupon(coupon2.getId());
+            }
+            System.out.println(tab + "Delete coupon successfully");
+            System.out.println(tab + "-----------------------------------");
+        } catch (CouponSystemException e) {
+            e.printStackTrace();
         }
 
 
@@ -485,7 +508,7 @@ public class Test {
         LocalDateTime startDate = LocalDateTime.parse("2021-12-03 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime endDate = LocalDateTime.parse("2021-12-05 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         CouponsDBDAO couponsDBDAO = CouponsDBDAO.getInstance();
-        Coupon coupon = new Coupon(companyId, 2, "Body lotion", "Body wellness", startDate, endDate, 1, 300, "image");
+        Coupon coupon = new Coupon(companyId, 2, "Yoga for everyone", "Body wellness day", startDate, endDate, 1, 200, "image");
         try {
             if (couponsDBDAO != null) {
                 couponsDBDAO.addCoupon(coupon); /* straight through couponsDBDAO */
@@ -498,14 +521,14 @@ public class Test {
     private static Coupon createFamilyHofeshCoupon(int companyId, int couponId) {
         LocalDateTime startDate = LocalDateTime.parse("2021-12-03 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime endDate = LocalDateTime.parse("2021-12-05 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        Coupon coupon = new Coupon(couponId, companyId, 3, "Family hofesh", "Family spa rest with babes", startDate, endDate, 1, 300, "image");
+        Coupon coupon = new Coupon(couponId, companyId, 3, "Family hofesh", "Family spa rest with babes", startDate, endDate, 1, 500, "image");
         return coupon;
     }
 
-    private static Coupon createNofeshCoupon(int companyId, int couponId) {
+    private static Coupon createNofeshPacketCoupon(int companyId, int couponId) {
         LocalDateTime startDate = LocalDateTime.parse("2021-12-03 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime endDate = LocalDateTime.parse("2021-12-05 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        Coupon coupon = new Coupon(couponId, companyId, 3, "Nofesh", "Spa in Galil", startDate, endDate, 1, 300, "image");
+        Coupon coupon = new Coupon(couponId, companyId, 3, "Nofesh packet", "Spa in Galil", startDate, endDate, 1, 300, "image");
         return coupon;
     }
 }

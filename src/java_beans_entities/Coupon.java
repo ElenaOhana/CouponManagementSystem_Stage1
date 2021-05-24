@@ -168,11 +168,11 @@ public class Coupon {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Coupon coupon = (Coupon) o;
-        return getId() == coupon.getId() && getTitle().equals(coupon.getTitle());
+        return getId() == coupon.getId();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getTitle());
+        return Objects.hash(getId());
     }
 }

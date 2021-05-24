@@ -31,5 +31,5 @@ public interface CouponsDAO {
 
     List<Coupon> getCompanyCouponsByCompanyId(int companyId) throws SQLException;
 
-    /*List<Customer>*/ List<Integer> getCustomersIdFromCustomersVsCoupons(int couponId) throws SQLException;
+    List<Integer> getCustomersIdFromCustomersVsCoupons(int couponId) throws SQLException;
 }
