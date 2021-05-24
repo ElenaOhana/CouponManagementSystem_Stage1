@@ -26,7 +26,7 @@ public class AdminFacade extends ClientFacade {
         return customerSet.add(customer);// todo maybe? Exception
     }
 
-    public static boolean login(String email, String password) throws CouponSystemException { // Hard-Coded- יש לבדוק אותם כ
+    public static boolean login(String email, String password) throws CouponSystemException {
         boolean loginOk;
         boolean emailOk = email.equalsIgnoreCase("admin@admin.com");
         boolean passwordOk = password.equalsIgnoreCase("admin");

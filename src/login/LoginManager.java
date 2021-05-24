@@ -26,7 +26,7 @@ public class LoginManager { // LoginManager is Singleton
             if (CompanyFacade.login(email,password)) {
                 int companyId = CompanyFacade.loginCompanyReturnId(email,password);
                 ClientFacade companyFacade = new CompanyFacade(companyId);
-                return  companyFacade;
+                return companyFacade;
             }
         } else if (clientType == ClientType.CUSTOMER) {
             if (CustomerFacade.login(email, password)) {

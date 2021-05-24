@@ -10,13 +10,6 @@ import java_beans_entities.Coupon;
 import java.sql.SQLException;
 import java.util.List;
 
-
-/*
-    :Clients הגישה למערכת מתחלקת לשלושה סוגי
-    ניהול רשימת החברות ורשימת הלקוחות. – Administrator .1
-    ניהול רשימת קופונים המשויכים לחברה. – Company .2
-    רכישת קופונים. – Customer .3
-     */
 public class CompanyFacade extends ClientFacade {
     private int companyId;
 
@@ -28,12 +21,14 @@ public class CompanyFacade extends ClientFacade {
         boolean loginTrue;
         try {
             loginTrue = companiesDAO.isCompanyExists(email, password);
-        } catch (SQLException e) {
-            throw new CouponSystemException("DB error", e);//TODO Company doesn't exist
-        } catch (InternalSystemException e) {
-            throw new CouponSystemException("DB error.", e);
+            if (loginTrue) {
+                return true;
+            } else {
+                throw new CouponSystemException("DB error. Wrong credentials.");
+            }
+        } catch (SQLException | InternalSystemException e) {
+            throw new CouponSystemException("DB error", e);
         }
-        return loginTrue;
     }
 
     public static int loginCompanyReturnId(String email, String password) throws CouponSystemException {
@@ -66,7 +61,11 @@ public class CompanyFacade extends ClientFacade {
                 if (coupon.getCompanyId() == companyId) {
                     List<Coupon> couponList = couponsDAO.getCompanyCouponsByCompanyId(companyId);
                     if (!couponList.contains(coupon)) {
-                        couponsDAO.addCoupon(coupon);
+                        for (Coupon coupon1 : couponList) {
+                            if(!coupon1.getTitle().equalsIgnoreCase(coupon.getTitle())); {
+                                couponsDAO.addCoupon(coupon);
+                            }
+                        }
                     } else {
                         throw new CouponSystemException("An error has occurred. The coupon already exists.");
                     }

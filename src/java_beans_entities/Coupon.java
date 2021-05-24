@@ -1,6 +1,5 @@
 package java_beans_entities;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -15,7 +14,7 @@ public class Coupon {
     private int amount;
     private double price;
     private String image;
-    CouponStatus couponStatus = CouponStatus.ABLE; // // TODO IN BusinessLogic: only after call boughtCoupon() OR expiredCoupon() method - the clientStatus turns to disable.
+    CouponStatus couponStatus = CouponStatus.ABLE;
 
     public Coupon(int id, int companyId, int categoryID, String title, String description,
                   LocalDateTime startDate, LocalDateTime endDate, int amount, double price, String image) {
@@ -169,11 +168,11 @@ public class Coupon {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Coupon coupon = (Coupon) o;
-        return getId() == coupon.getId();
+        return getId() == coupon.getId() && getTitle().equals(coupon.getTitle());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId());
+        return Objects.hash(getId(), getTitle());
     }
 }

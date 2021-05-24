@@ -299,11 +299,17 @@ public class Test {
 
         System.out.println(tab + "LOGIN_COMPANY METHOD TESTING:");
         try {
-            System.out.println(tab + "---------------ERROR---------------");/* Should provide "Wrong admin credentials" error. */
+            System.out.println(tab + "---------------ERROR---------------");/* Should provide "Wrong credentials" error, because we try to login company with wrong email. */
             companyZaraFacade = (CompanyFacade) LoginManager.login("za_women@newFarm.com", "ZARA123", ClientType.COMPANY);
-            System.out.println(companyZaraFacade);
         }catch (CouponSystemException e) {
-            System.out.println(e.getMessage() + e.getCause());
+            System.out.println(tab + e.getMessage());
+            System.out.println(tab + "-----------------------------------");
+        }
+        try {
+            System.out.println(tab + "---------------ERROR---------------");/* Should provide "Wrong credentials" error, because we try to login company with wrong password. */
+            companyZaraFacade = (CompanyFacade) LoginManager.login("zara_women@newFarm.com", "123", ClientType.COMPANY);
+        }catch (CouponSystemException e) {
+            System.out.println(tab + e.getMessage() + e.getCause());
             System.out.println(tab + "-----------------------------------");
         }
         try {
@@ -319,7 +325,7 @@ public class Test {
         System.out.println(tab + "ADD_COUPON METHOD TESTING:");
         try {
             System.out.println(tab + "------------PROPER CASE------------");
-            coupon2 = createCouponWithRightCompanyId(1);
+            coupon2 = createFamilyHofeshCoupon(1, 1);
             if (companyZaraFacade != null) {
                 companyZaraFacade.addCoupon(coupon2);
             }
@@ -330,20 +336,69 @@ public class Test {
         }
         try {
             System.out.println(tab + "---------------ERROR---------------");
-            Coupon coupon = createCouponWithWrongCompanyId(3); /* Create coupon of Company that didn't login */
+            Coupon coupon = createFamilyHofeshCoupon(1, 6); /* Create a coupon of Zara-Company that has the same title */
             if (companyZaraFacade != null) {
-                companyZaraFacade.addCoupon(coupon); // /*Should provide an error because we adding a coupon that doesn't belong to Zara Company */
+                companyZaraFacade.addCoupon(coupon); /*Should provide an "The coupon already exists." error because we adding a new coupon with the same title to the company*/
             }
         } catch (CouponSystemException e) {
             System.out.println(tab + e.getMessage());
             System.out.println(tab + "-----------------------------------");
+        }
+        try {
+            System.out.println(tab + "---------------ERROR---------------");
+            Coupon coupon = createNofeshCoupon(3, 1); /* Create coupon of Company that didn't login */
+            if (companyZaraFacade != null) {
+                companyZaraFacade.addCoupon(coupon); /*Should provide an "The action is illegal" error because we adding a coupon that doesn't belong to Zara Company */
+            }
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getMessage());
+            System.out.println(tab + "-----------------------------------");
+        }
+        try {
+            System.out.println(tab + "---------------ERROR---------------");
+            CouponsDBDAO couponsDBDAO = CouponsDBDAO.getInstance();
+            if (companyZaraFacade != null) {
+                try {
+                    companyZaraFacade.addCoupon(couponsDBDAO.getOneCoupon(4)); /*Should provide an "The coupon already exists." error because we adding an existing coupon of Zara Company */
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getMessage());
+            System.out.println(tab + "-----------------------------------");
+        }
+        System.out.println();
+        System.out.println("------Create new Company(CompanyId=4) and their Login in order to check: Adding a new coupon with the same title to another company------");
+        try {
+            adminFacade.addCompany(new Company("KalCar", "car_car@kalcar.co.il", "car5555"));
+        } catch (CouponSystemException e) {
+            e.printStackTrace();
+        }
+
+        CompanyFacade kalCarCompany = null;
+        try {
+            kalCarCompany = (CompanyFacade) LoginManager.login("car_car@kalcar.co.il", "car5555", ClientType.COMPANY);
+        } catch (CouponSystemException e) {
+            e.printStackTrace();
+        }
+        try { // Login CompanyId 4 before
+            System.out.println(tab + "------------PROPER CASE------------");
+            coupon2 = createFamilyHofeshCoupon(4, 6); // Adding a new coupon with the same title to another company
+            if (kalCarCompany != null) {
+                kalCarCompany.addCoupon(coupon2);
+            }
+            System.out.println(tab + "Add coupon successfully");
+            System.out.println(tab + "-----------------------------------");
+        } catch (CouponSystemException e) {
+            e.printStackTrace();
         }
 //////////////////////////////////////////////////TODO UPDATE_COUPON
         System.out.println();
         System.out.println(tab + "UPDATE_COUPON METHOD TESTING:");
         try {
             System.out.println(tab + "------------PROPER CASE------------");
-            coupon2 = createCouponWithRightCompanyId(1);
+            coupon2 = createFamilyHofeshCoupon(1, 1);
             if (companyZaraFacade != null) {
                 companyZaraFacade.updateCoupon(coupon2);
             }
@@ -354,9 +409,9 @@ public class Test {
         }
         try {
             System.out.println(tab + "---------------ERROR---------------");
-            Coupon coupon = createCouponWithWrongCompanyId(3); /* Create coupon of Company that didn't login */
+            Coupon coupon = createNofeshCoupon(3,1); /* Create coupon of Company that didn't login */
             if (companyZaraFacade != null) {
-                companyZaraFacade.addCoupon(coupon); // /*Should provide an error because we adding a coupon that doesn't belong to Zara Company */
+                companyZaraFacade.addCoupon(coupon); /*Should provide an error because we adding a coupon that doesn't belong to Zara Company */
             }
         } catch (CouponSystemException e) {
             System.out.println(tab + e.getMessage());
@@ -376,8 +431,15 @@ public class Test {
                 e.printStackTrace();
             }*/
 
-        //System.out.println("-------------------------------------Customer Facade Test-----------------------------------------");
-
+       /* System.out.println("-------------------------------------Customer Facade Test-----------------------------------------");
+        System.out.println(tab + "---------------ERROR---------------");
+        CompanyFacade companyNewFarmFacade;
+        try { *//*Will provide the "Company does not exists/Status is INACTIVE" error because we trying to login with deleted Company *//*
+            companyNewFarmFacade = (CompanyFacade) LoginManager.login("new_farm@newFarm.com", "2222", ClientType.COMPANY);
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getMessage());
+            System.out.println(tab + "-----------------------------------");
+        }*/
     }
 
 
@@ -418,6 +480,7 @@ public class Test {
         }
     }
 
+    /* This method creates coupons in DB without login of any Company in order to test Admin Facade only => addCoupon(coupon) NOT via companyFacade */
     private static void createCouponInDatabase(int companyId) {
         LocalDateTime startDate = LocalDateTime.parse("2021-12-03 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime endDate = LocalDateTime.parse("2021-12-05 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
@@ -425,24 +488,24 @@ public class Test {
         Coupon coupon = new Coupon(companyId, 2, "Body lotion", "Body wellness", startDate, endDate, 1, 300, "image");
         try {
             if (couponsDBDAO != null) {
-                couponsDBDAO.addCoupon(coupon); // TODO via facade!
+                couponsDBDAO.addCoupon(coupon); /* straight through couponsDBDAO */
             }
         } catch (SQLException | InternalSystemException e) {
             e.printStackTrace();
         }
     }
 
-    private static Coupon createCouponWithRightCompanyId(int companyId) {
+    private static Coupon createFamilyHofeshCoupon(int companyId, int couponId) {
         LocalDateTime startDate = LocalDateTime.parse("2021-12-03 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime endDate = LocalDateTime.parse("2021-12-05 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        Coupon coupon = new Coupon(1, companyId, 3, "Family hofesh", "Family spa rest with babes", startDate, endDate, 1, 300, "image");
+        Coupon coupon = new Coupon(couponId, companyId, 3, "Family hofesh", "Family spa rest with babes", startDate, endDate, 1, 300, "image");
         return coupon;
     }
 
-    private static Coupon createCouponWithWrongCompanyId(int companyId) {
+    private static Coupon createNofeshCoupon(int companyId, int couponId) {
         LocalDateTime startDate = LocalDateTime.parse("2021-12-03 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime endDate = LocalDateTime.parse("2021-12-05 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        Coupon coupon = new Coupon(1, companyId, 3, "Nofesh", "Spa in Galil", startDate, endDate, 1, 300, "image");
+        Coupon coupon = new Coupon(couponId, companyId, 3, "Nofesh", "Spa in Galil", startDate, endDate, 1, 300, "image");
         return coupon;
     }
 }
