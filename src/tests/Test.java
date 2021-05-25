@@ -592,6 +592,55 @@ public class Test {
             e.printStackTrace();
         }
         System.out.println();
+
+        System.out.println(tab + "PURCHASE_COUPON METHOD TESTING:");
+        System.out.println(tab + "---------------ERROR---------------");
+        try {
+            if (customerRonFacade != null) {
+                customerRonFacade.purchaseCoupon(couponsDBDAO.getOneCoupon(3));/* Error because amount is 0 of coupon(id=3) */
+            }
+        } catch (CouponSystemException | SQLException e) {
+            System.out.println(tab + e.getMessage());
+            System.out.println(tab + "-----------------------------------");
+        }
+
+        System.out.println(tab + "---------------ERROR---------------");
+        try {
+            if (customerRonFacade != null) {
+                customerRonFacade.purchaseCoupon(couponsDBDAO.getOneCoupon(7));/* Error because purchase a DISABLE coupon */
+            }
+        } catch (CouponSystemException | SQLException e) {
+            System.out.println(tab + e.getMessage());
+            System.out.println(tab + "-----------------------------------");
+        }
+
+        System.out.println(tab + "---------------ERROR---------------");
+        try {
+            if (customerRonFacade != null) {
+                createExpiredCouponInDatabase(8,4);
+                customerRonFacade.purchaseCoupon(couponsDBDAO.getOneCoupon(8));/* Error because purchase an expired coupon */
+            }
+        } catch (CouponSystemException | SQLException e) {
+            System.out.println(tab + e.getMessage());
+            System.out.println(tab + "-----------------------------------");
+        }
+
+
+    }
+
+    /* This method creates coupons in DB without login of any Company in order to test Customer Facade and DailyJobThread => addCoupon(coupon) NOT via companyFacade */
+    private static void createExpiredCouponInDatabase(int couponId, int companyId) {
+        LocalDateTime startDate = LocalDateTime.parse("2021-02-30 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime endDate = LocalDateTime.parse("2021-04-30 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        CouponsDBDAO couponsDBDAO = CouponsDBDAO.getInstance();
+        Coupon coupon = new Coupon(couponId, companyId, 2, "Honda", "Honda dream day", startDate, endDate, 15, 150000, "image");
+        try {
+            if (couponsDBDAO != null) {
+                couponsDBDAO.addCoupon(coupon); /* straight through couponsDBDAO */
+            }
+        } catch (SQLException | InternalSystemException e) {
+            e.printStackTrace();
+        }
     }
 
 

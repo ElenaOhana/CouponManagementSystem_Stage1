@@ -191,7 +191,6 @@ public class CouponsDBDAO implements CouponsDAO { // CouponsDBDAO is Singleton
             preparedStatement.setInt(1, couponID);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    //int id = resultSet.getInt("id");
                     String title = resultSet.getString("title");
                     String description = resultSet.getString("description");
                     LocalDateTime startDate = resultSet.getTimestamp("startDate").toLocalDateTime();
