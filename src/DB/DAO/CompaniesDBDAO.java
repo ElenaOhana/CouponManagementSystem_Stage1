@@ -175,29 +175,6 @@ public class CompaniesDBDAO implements CompaniesDAO { // CompaniesDBDAO is Singl
         return company;
     }
 
-    /*@Override
-    public boolean isCompanyNameExists(String name) throws SQLException {
-        final String queryTempGetCompanyName = "SELECT `name` FROM `Companies` WHERE `name` = ?";
-        Connection connection = connectionPool.getConnection();
-        boolean result = false;
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempGetCompanyName)) {
-            preparedStatement.setString(1, name);
-            preparedStatement.executeQuery();
-
-            try (ResultSet resultSet = preparedStatement.getResultSet()) {
-                boolean nameExists = resultSet.getString("Name").equalsIgnoreCase(name);
-                if (resultSet.next()) {
-                    if (nameExists) {
-                        result = true;
-                    }
-                }
-            }
-        } finally {
-            connectionPool.restoreConnection(connection);
-        }
-        return result;
-    }*/
-
     @Override
     public Company getCompanyByEmail(String email) throws SQLException, InternalSystemException {
         final String queryTempGetCompanyByEmail = "SELECT * FROM `Companies` WHERE `email` = ?";

@@ -26,7 +26,7 @@ public class Test {
         DBPseudoDataManager.dropCreateTables();
         try {
             DBPseudoDataManager.createCategories(new Category("Shopping"));
-            DBPseudoDataManager.createCategories(new Category("Pharmacy"));
+            DBPseudoDataManager.createCategories(new Category("Sport"));
             DBPseudoDataManager.createCategories(new Category("Spa and wellness"));
             DBPseudoDataManager.createCategories(new Category("Traveling"));
         } catch (SQLException | InternalSystemException e) {
@@ -124,7 +124,7 @@ public class Test {
         }
         System.out.println();
 
-        System.out.println("////////////////////////////////////////////////////////");
+
         System.out.println(tab + "ADD_CUSTOMER METHOD TESTING:");
         try {
             System.out.println(tab + "------------PROPER CASE------------");
@@ -203,6 +203,7 @@ public class Test {
         System.out.println(tab + "DELETE_CUSTOMER METHOD TESTING:");
         /* Create new coupon and his purchase in DB before we want to delete the Customer and his purchase */
         createCouponInDatabase(1);
+        CouponsDBDAO couponsDBDAO = CouponsDBDAO.getInstance();
         if (customerMariaFacade != null) {
             createCustomerPurchaseInDatabase(3, customerMariaFacade);
             System.out.println(tab + "Customer purchased a coupon with couponId 3");
@@ -221,7 +222,6 @@ public class Test {
             System.out.println("------Check INACTIVE(deleted) Customer can do purchase?-------");
             System.out.println(tab + "---------------ERROR---------------");/*Should provide an error because the Maria-client status is INACTIVE already and she can not make a purchase*/
             createCouponInDatabase(1);
-            CouponsDBDAO couponsDBDAO = CouponsDBDAO.getInstance();
             try {
                 customerMariaFacade.purchaseCoupon(couponsDBDAO.getOneCoupon(4)); /* purchase a new ABLE Coupon(Id=4) with amount 1. */
             } catch (CouponSystemException | SQLException e) {
@@ -295,20 +295,20 @@ public class Test {
         System.out.println("///////////////////////////////////////////////////////////////////////////////////////////////////");
         System.out.println("-------------------------------------Company Facade Test-----------------------------------------");
         CompanyFacade companyZaraFacade = null;
-        Coupon coupon2;
+        Coupon coupon2 = null;
 
         System.out.println(tab + "LOGIN_COMPANY METHOD TESTING:");
         try {
             System.out.println(tab + "---------------ERROR---------------");/* Should provide "Wrong credentials" error, because we try to login company with wrong email. */
             companyZaraFacade = (CompanyFacade) LoginManager.login("za_women@newFarm.com", "ZARA123", ClientType.COMPANY);
-        }catch (CouponSystemException e) {
+        } catch (CouponSystemException e) {
             System.out.println(tab + e.getMessage());
             System.out.println(tab + "-----------------------------------");
         }
         try {
             System.out.println(tab + "---------------ERROR---------------");/* Should provide "Wrong credentials" error, because we try to login company with wrong password. */
             companyZaraFacade = (CompanyFacade) LoginManager.login("zara_women@newFarm.com", "123", ClientType.COMPANY);
-        }catch (CouponSystemException e) {
+        } catch (CouponSystemException e) {
             System.out.println(tab + e.getMessage() + e.getCause());
             System.out.println(tab + "-----------------------------------");
         }
@@ -358,7 +358,6 @@ public class Test {
         }
         try {
             System.out.println(tab + "---------------ERROR---------------");
-            CouponsDBDAO couponsDBDAO = CouponsDBDAO.getInstance();
             if (companyZaraFacade != null) {
                 try {
                     companyZaraFacade.addCoupon(couponsDBDAO.getOneCoupon(4)); /*Should provide an "The coupon already exists." error because we adding an existing coupon of Zara Company */
@@ -407,7 +406,7 @@ public class Test {
         }
         try {
             System.out.println(tab + "---------------ERROR---------------");
-            Coupon coupon = createNofeshPacketCoupon(3,1);  /* Update coupon of Company that didn't login */
+            Coupon coupon = createNofeshPacketCoupon(3, 1);  /* Updating coupon of Company that didn't login is illegal */
             if (companyZaraFacade != null) {
                 companyZaraFacade.updateCoupon(coupon); /*Should provide an error because we update a coupon that doesn't belong to Zara Company*/
             }
@@ -417,9 +416,9 @@ public class Test {
         }
         try {
             System.out.println(tab + "---------------ERROR---------------");
-            Coupon coupon = createNofeshPacketCoupon(3,4);  /* Update companyId of coupon (of logined Company) is illegal */
+            Coupon coupon = createNofeshPacketCoupon(3, 4);  /* Update companyId of coupon (of another Company) is illegal */
             if (companyZaraFacade != null) {
-                companyZaraFacade.updateCoupon(coupon); /* Should provide an error because we trying update a companyId of coupon */
+                companyZaraFacade.updateCoupon(coupon); /* Should provide an error because we trying to update a companyId of coupon */
             }
         } catch (CouponSystemException e) {
             System.out.println(tab + e.getMessage());
@@ -429,40 +428,170 @@ public class Test {
         System.out.println();
         System.out.println(tab + "DELETE_COUPON METHOD TESTING:");
         try {
-            System.out.println(tab + "------------PROPER CASE------------");
+            System.out.println(tab + "---------------ERROR---------------");
             coupon2 = createNofeshPacketCoupon(1, 7);
             if (companyZaraFacade != null) {
                 companyZaraFacade.addCoupon(coupon2);
-                companyZaraFacade.deleteCoupon(coupon2.getId());
+                companyZaraFacade.deleteCoupon(coupon2.getId()); /* Should provide an error because there are no customer purchases for this coupon(id = 7) yet, but it change the coupon status to DISABLE */
             }
-            System.out.println(tab + "Delete coupon successfully");
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getMessage());
+            System.out.println(tab + "-----------------------------------");
+        }
+
+        /* Create Ron Customer in DB and his login in order to do a customer purchase before we want to delete a customer purchase */
+        System.out.println("-----Login as a Ron customer(id=3) in order to do a customer purchase for coupon(id=3)-------------");
+        CustomerFacade customerRonFacade = null;
+        Customer ron;
+        try {
+            ron = createCustomerInDatabase(new Customer("Ron", "Goldberg", "ron_gold12@gmail.com", "3456"));
+            try {
+                customerRonFacade = (CustomerFacade) LoginManager.login("ron_gold12@gmail.com", "3456", ClientType.CUSTOMER); /* Should get customerFacade successfully, because it's right credentials */
+                if (customerRonFacade != null) {
+                    createCustomerPurchaseInDatabase(3, customerRonFacade);
+                    List<Coupon> ronCoupons = customerRonFacade.getCustomerCoupons();
+                    System.out.println(ronCoupons);
+                }
+                System.out.println(tab + "Log in as Ron customer(id=3) and his purchase was successful");
+            } catch (CouponSystemException e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println(tab + "------------PROPER CASE------------");
+        if (companyZaraFacade != null) {
+            try {
+                companyZaraFacade.deleteCoupon(3);
+            } catch (CouponSystemException couponSystemException) {
+                couponSystemException.printStackTrace();
+            }
+        }
+        System.out.println(tab + "Delete coupon successfully");
+        System.out.println(tab + "-----------------------------------");
+        System.out.println();
+
+        System.out.println("------Check if it possible to purchase a DISABLE(deleted) Coupon?-------");
+        try {
+            try {
+                coupon2 = couponsDBDAO.getOneCoupon(7); /*the coupon was deleted than it has DISABLE status */
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            System.out.println(tab + "---------------ERROR---------------");
+            if (customerRonFacade != null) {
+                customerRonFacade.purchaseCoupon(coupon2); /* Should provide an error because we trying to purchase a deleted coupon (with DISABLE status) */
+            }
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getMessage());
+            System.out.println(tab + "-----------------------------------");
+        }
+        System.out.println();
+
+        System.out.println(tab + "GET_COMPANY_COUPONS METHOD TESTING:");
+        System.out.println(tab + "------------PROPER CASE------------");
+        if (companyZaraFacade != null) {
+            try {
+                List<Coupon> companyCoupons = companyZaraFacade.getCompanyCoupons();
+                for (Coupon companyCoupon : companyCoupons) {
+                    System.out.println(companyCoupon);
+                }
+            } catch (CouponSystemException couponSystemException) {
+                couponSystemException.printStackTrace();
+            }
+        }
+        System.out.println(tab + "Get company coupons successfully");
+        System.out.println(tab + "-----------------------------------");
+
+        CompanyFacade companyNewFarmFacade;
+        try {
+            System.out.println(tab + "---------------ERROR---------------");
+            companyNewFarmFacade = (CompanyFacade) LoginManager.login("new_farm@newFarm.com", "2222", ClientType.COMPANY);
+            if (companyNewFarmFacade != null) {
+                companyNewFarmFacade.getCompanyCoupons(); /* Should provide an error because the NewFarm company can't get Coupons because NewFarm has INACTIVE status (it's deleted)*/
+            }
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getMessage());
+            System.out.println(tab + "-----------------------------------");
+        }
+        System.out.println();
+
+        System.out.println(tab + "GET_COMPANY_COUPONS_BY_CATEGORY METHOD TESTING:");
+        Category category = new Category(3, "Spa and wellness");
+        System.out.println(tab + "------------PROPER CASE------------");
+        if (companyZaraFacade != null) {
+            try {
+                List<Coupon> couponsByCategory = companyZaraFacade.getCompanyCoupons(category);
+                for (Coupon coupon : couponsByCategory) {
+                    System.out.println(coupon);
+                }
+            } catch (CouponSystemException couponSystemException) {
+                couponSystemException.printStackTrace();
+            }
+        }
+        System.out.println(tab + "Get company coupons by category successfully");
+        System.out.println(tab + "-----------------------------------");
+        System.out.println();
+
+
+        System.out.println(tab + "GET_COUPONS_UP_TO_MAX_COMPANY_PRICE METHOD TESTING:");
+        double maxPrice = 500;
+        System.out.println(tab + "------------PROPER CASE------------");
+        if (companyZaraFacade != null) {
+            try {
+                List<Coupon> couponsUPTOMaxCompanyPrice = companyZaraFacade.getCompanyCoupons(maxPrice);
+                for (Coupon coupon : couponsUPTOMaxCompanyPrice) {
+                    System.out.println(coupon);
+                }
+            } catch (CouponSystemException couponSystemException) {
+                couponSystemException.printStackTrace();
+            }
+        }
+        System.out.println(tab + "Get coupons up to max company price successfully");
+        System.out.println(tab + "-----------------------------------");
+        System.out.println();
+
+        System.out.println(tab + "GET_COMPANY_DETAILS METHOD TESTING:");
+        System.out.println(tab + "------------PROPER CASE------------");
+        if (companyZaraFacade != null) {
+            try {
+                Company zaraCompany = companyZaraFacade.getCompanyDetails(); /* I don't bring a whole object (without conmany coupons)*/
+                System.out.println(tab + zaraCompany);
+            } catch (CouponSystemException couponSystemException) {
+                couponSystemException.printStackTrace();
+            }
+        }
+        System.out.println(tab + "Get company details successfully");
+        System.out.println(tab + "-----------------------------------");
+        System.out.println("///////////////////////////////////////////////////////////////////////////////////////////////////");
+
+
+        System.out.println("-------------------------------------Customer Facade Test-----------------------------------------");
+        System.out.println(tab + "CUSTOMER_LOGIN METHOD TESTING:");
+        System.out.println(tab + "---------------ERROR---------------");
+        try {
+            customerMariaFacade = (CustomerFacade) LoginManager.login("maria_go@gmail.com", "1111", ClientType.CUSTOMER);/*Will provide the "Customer does not exists/Status is INACTIVE" error because we trying to login with deleted Customer */
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getMessage());
+            System.out.println(tab + "-----------------------------------");
+        }
+
+        try {
+            System.out.println(tab + "---------------ERROR---------------");
+            customerRonFacade = (CustomerFacade) LoginManager.login("ron_gold", "3456", ClientType.CUSTOMER); /* Should provide "Wrong credentials" error. */
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getMessage());
+            System.out.println(tab + "-----------------------------------");
+        }
+        try {
+            System.out.println(tab + "------------PROPER CASE------------");
+            customerRonFacade = (CustomerFacade) LoginManager.login("ron_gold12@gmail.com", "3456", ClientType.CUSTOMER); /* Should get customerFacade successfully, because it's right credentials */
+            System.out.println(tab + "Right admin credentials");
             System.out.println(tab + "-----------------------------------");
         } catch (CouponSystemException e) {
             e.printStackTrace();
         }
-
-
-
-
-        //System.out.println("///////////////////////////////////////////");
-        //System.out.println(tab + "Creating customer Ron in DB");
-           /* System.out.println(tab + "------------PROPER CASE------------");
-            Customer ron = createCustomerInDatabase(new Customer("Ron", "Goldberg", "ron_gold12", "3456"));
-            try {
-                CustomerFacade customerRonFacade = (CustomerFacade) LoginManager.login("ron_gold12", "3456", ClientType.CUSTOMER); *//* Should get adminFacade successfully, because it's right credentials *//*
-            } catch (CouponSystemException e) {
-                e.printStackTrace();
-            }*/
-
-       /* System.out.println("-------------------------------------Customer Facade Test-----------------------------------------");
-        System.out.println(tab + "---------------ERROR---------------");
-        CompanyFacade companyNewFarmFacade;
-        try { *//*Will provide the "Company does not exists/Status is INACTIVE" error because we trying to login with deleted Company *//*
-            companyNewFarmFacade = (CompanyFacade) LoginManager.login("new_farm@newFarm.com", "2222", ClientType.COMPANY);
-        } catch (CouponSystemException e) {
-            System.out.println(tab + e.getMessage());
-            System.out.println(tab + "-----------------------------------");
-        }*/
+        System.out.println();
     }
 
 

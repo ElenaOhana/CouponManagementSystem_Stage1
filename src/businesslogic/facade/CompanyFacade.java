@@ -2,12 +2,14 @@ package businesslogic.facade;
 
 import exceptions.CouponSystemException;
 import exceptions.InternalSystemException;
+import exceptions.NotFoundException;
 import java_beans_entities.Category;
 import java_beans_entities.ClientStatus;
 import java_beans_entities.Company;
 import java_beans_entities.Coupon;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CompanyFacade extends ClientFacade {
@@ -103,17 +105,26 @@ public class CompanyFacade extends ClientFacade {
         }
     }
 
-    //Fixme
     public void deleteCoupon(int couponId) throws CouponSystemException {
+        List<Integer> customerIdList;
         try {
-            /*Coupon coupon = couponsDAO.getOneCoupon(couponId);
-            if (coupon.getCompanyId() == companyId) {*/
-                couponsDAO.deleteCouponAsChangeStatus(couponId);
-                // todo from tirg
-                deleteCoupon(couponId);
-                //couponsDAO.deleteCouponPurchase(); // customerID ??? Holds customersList?
-
-           // }
+            Coupon coupon = couponsDAO.getOneCoupon(couponId);
+            if (coupon.getCompanyId() == companyId) {
+                couponsDAO.deleteCouponAsChangeStatus(couponId); /* Change status to DISABLE (as delete) of coupon */
+                customerIdList = couponsDAO.getCustomersIdFromCustomersVsCoupons(coupon.getId());
+                if (customerIdList != null) {
+                    if (customerIdList.isEmpty()) {
+                        throw new NotFoundException("There are no customer purchases for coupon " + couponId);
+                    }
+                    for (Integer customerId : customerIdList) {
+                        customersDAO.deleteCustomerPurchase(customerId); /* Delete customer purchase */
+                    }
+                } else {
+                    throw new NotFoundException("Customers are not found");
+                }
+            } else {
+                throw new CouponSystemException("The action is illegal.");
+            }
         } catch (SQLException | InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);
         }
@@ -121,28 +132,49 @@ public class CompanyFacade extends ClientFacade {
 
     public List<Coupon> getCompanyCoupons() throws CouponSystemException {
         List<Coupon> couponList;
+        List<Coupon> couponListByCompany = new ArrayList<>();
         try {
             couponList = couponsDAO.getAllCoupons();
+            for (Coupon coupon : couponList) {
+                if (coupon.getCompanyId() == companyId) {
+                    couponListByCompany.add(coupon);
+                }
+            }
         } catch (SQLException e) {
             throw new CouponSystemException("DB error");
         }
-        return couponList;
+        return couponListByCompany;
     }
 
     public List<Coupon> getCompanyCoupons(Category category) throws CouponSystemException {
+        List<Coupon> couponList;
+        List<Coupon> couponListByCompany = new ArrayList<>();
         try {
-            return couponsDAO.getCouponListByCategory(category); // TODO to ask if it OK to return in try block
+            couponList = couponsDAO.getCouponListByCategory(category);
+            for (Coupon coupon : couponList) {
+                if (coupon.getCompanyId() == companyId) {
+                    couponListByCompany.add(coupon);
+                }
+            }
         } catch (SQLException e) {
             throw new CouponSystemException("DB error");
         }
+        return couponListByCompany;
     }
 
     public List<Coupon> getCompanyCoupons(double maxPrice) throws CouponSystemException {
+        List<Coupon> couponListUpToPrice = new ArrayList<>();
         try {
-            return couponsDAO.getCouponListLessThanMaxPrice(maxPrice);
+            List<Coupon> couponList =  couponsDAO.getCouponListLessThanMaxPrice(maxPrice);
+            for (Coupon coupon : couponList) {
+                if (coupon.getCompanyId() == companyId) {
+                    couponListUpToPrice.add(coupon);
+                }
+            }
         } catch (SQLException e) {
             throw new CouponSystemException("DB error");
         }
+        return couponListUpToPrice;
     }
 
     public Company getCompanyDetails() throws CouponSystemException { // We know what CompanyId because it that connected

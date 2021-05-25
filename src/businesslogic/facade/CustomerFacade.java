@@ -3,10 +3,7 @@ package businesslogic.facade;
 import com.sun.xml.internal.bind.v2.TODO;
 import exceptions.CouponSystemException;
 import exceptions.InternalSystemException;
-import java_beans_entities.Category;
-import java_beans_entities.ClientStatus;
-import java_beans_entities.Coupon;
-import java_beans_entities.Customer;
+import java_beans_entities.*;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -24,12 +21,14 @@ public class CustomerFacade extends ClientFacade {
         boolean loginTrue;
         try {
             loginTrue = customersDAO.isCustomerExists(email, password);
-        } catch (SQLException e) {
+            if (loginTrue) {
+                return true;
+            } else {
+                throw new CouponSystemException("DB error. Wrong credentials.");
+            }
+        } catch (SQLException | InternalSystemException e) {
             throw new CouponSystemException("DB error", e);
-        } catch (InternalSystemException e) {
-            throw new CouponSystemException("DB error.", e);
         }
-        return loginTrue;
     }
 
     public static int loginCustomerReturnId(String email, String password) throws CouponSystemException {
@@ -44,7 +43,7 @@ public class CustomerFacade extends ClientFacade {
                     } catch (SQLException e) {
                         throw new CouponSystemException("DB error.", e);
                     }
-                }else {
+                } else {
                     throw new CouponSystemException("Customer does not exists/Status is INACTIVE");
                 }
             }
@@ -75,22 +74,24 @@ public class CustomerFacade extends ClientFacade {
             if (!couponListByCustomerId.contains(coupon)) {
                 if (coupon.getAmount() > 0) {
                     if (couponExpiryDate > 0) {
-                        try {
-                            couponsDAO.addCouponPurchase(customerId, coupon.getId());
-                        } catch (SQLException e) {
-                            throw new CouponSystemException("DB error.");
-                        } catch (InternalSystemException e) {
-                            throw new CouponSystemException("DB error.", e);
-                        }
-                        try {
-                            int newAmount = coupon.getAmount();
-                            newAmount--;
-                            coupon.setAmount(newAmount);
-                            couponsDAO.updateCoupon(coupon);
-                        } catch (SQLException e) {
-                            throw new CouponSystemException("DB error.");
-                        } catch (InternalSystemException e) {
-                            throw new CouponSystemException("DB error.", e);
+                        if (coupon.getCouponStatus() != CouponStatus.DISABLE) {
+                            try {
+                                couponsDAO.addCouponPurchase(customerId, coupon.getId());
+                            } catch (SQLException e) {
+                                throw new CouponSystemException("DB error.");
+                            } catch (InternalSystemException e) {
+                                throw new CouponSystemException("DB error.", e);
+                            }
+                            try {
+                                int newAmount = coupon.getAmount();
+                                newAmount--;
+                                coupon.setAmount(newAmount);
+                                couponsDAO.updateCoupon(coupon);
+                            } catch (SQLException | InternalSystemException e) {
+                                throw new CouponSystemException("DB error.", e);
+                            }
+                        } else {
+                            throw new CouponSystemException("The coupon doesn't exist.");
                         }
                     } else {
                         throw new CouponSystemException("The coupon date is expired.");

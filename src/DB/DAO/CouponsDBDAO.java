@@ -152,7 +152,7 @@ public class CouponsDBDAO implements CouponsDAO { // CouponsDBDAO is Singleton
 
     @Override
     public List<Coupon> getCouponListLessThanMaxPrice(double maxPrice) throws SQLException {
-        final String queryTempSelectCouponsLessOrEqualsThanMaxPrice = "SELECT * FROM `coupons` WHERE `price` <= ?";
+        final String queryTempSelectCouponsLessOrEqualsThanMaxPrice = "SELECT * FROM `coupons` WHERE `price` < ?";
         Connection connection = connectionPool.getConnection();
         Coupon coupon;
         List<Coupon> couponList = new ArrayList<>();
