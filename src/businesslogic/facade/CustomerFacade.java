@@ -87,6 +87,7 @@ public class CustomerFacade extends ClientFacade {
                                 newAmount--;
                                 coupon.setAmount(newAmount);
                                 couponsDAO.updateCoupon(coupon);
+
                             } catch (SQLException | InternalSystemException e) {
                                 throw new CouponSystemException("DB error.", e);
                             }
@@ -100,7 +101,7 @@ public class CustomerFacade extends ClientFacade {
                     throw new CouponSystemException("Not enough coupons to purchase.");
                 }
             } else {
-                throw new CouponSystemException("The customer with Id: " + customerId + " has already the coupon with Id" + coupon.getId());
+                throw new CouponSystemException("The customer with Id " + customerId + " has already the coupon with Id " + coupon.getId());
             }
         } else {
             throw new CouponSystemException("Customer does not exists/Status is INACTIVE");
@@ -110,7 +111,6 @@ public class CustomerFacade extends ClientFacade {
     public List<Coupon> getCustomerCoupons() throws CouponSystemException {
         List<Coupon> couponList;
         try {
-            //login  не нужно проверять где нет келет
             couponList = couponsDAO.getCustomerCouponsByCustomerId(customerId);
         } catch (SQLException e) {
             throw new CouponSystemException("DB error.");
@@ -120,24 +120,38 @@ public class CustomerFacade extends ClientFacade {
 
     public List<Coupon> getCustomerCoupons(Category category) throws CouponSystemException {
         List<Coupon> couponListByCustomer;
-        List<Coupon> couponListByCategory;
+        List<Coupon> couponListByCategoryAndCustomerId = new ArrayList<>();
         try {
-            //couponListByCustomer = couponsDAO.getCustomerCouponsByCustomerId(customerId); // Fixme איך לבדוק login - transaction or filter on Category?
-            couponListByCategory = couponsDAO.getCouponListByCategory(category);
+            couponListByCustomer = couponsDAO.getCustomerCouponsByCustomerId(customerId);
+            for (Coupon coupon : couponListByCustomer) {
+                if (coupon.getCategoryID() == category.getId()) {
+                    couponListByCategoryAndCustomerId.add(coupon);
+                }
+            }
         } catch (SQLException e) {
             throw new CouponSystemException("DB error.");
         }
-        return couponListByCategory;
+        return couponListByCategoryAndCustomerId;
     }
 
     public List<Coupon> getCustomerCoupons(double maxPrice) throws CouponSystemException {
-        List<Coupon> couponListByMaxPrice;
+        List<Coupon> customerCouponListUpToPrice = new ArrayList<>();
+        List<Coupon> couponListLessThanMaxPrice;
+        List<Coupon> couponListByCustomer;
         try {
-            couponListByMaxPrice = couponsDAO.getCouponListLessThanMaxPrice(maxPrice);
+            couponListLessThanMaxPrice = couponsDAO.getCouponListLessThanMaxPrice(maxPrice);
+            for (Coupon coupon : couponListLessThanMaxPrice) {
+                couponListByCustomer = couponsDAO.getCustomerCouponsByCustomerId(customerId);
+                for (Coupon coupon1 : couponListByCustomer) {
+                    if (coupon1.getId() == coupon.getId()) {
+                        customerCouponListUpToPrice.add(coupon);
+                    }
+                }
+            }
         } catch (SQLException e) {
             throw new CouponSystemException("DB error.");
         }
-        return couponListByMaxPrice;
+        return customerCouponListUpToPrice;
     }
 
     public Customer getCustomerDetails() throws CouponSystemException {

@@ -145,7 +145,7 @@ public class AdminFacade extends ClientFacade {
         List<Customer> customerList;
         try {
             customerList = customersDAO.getAllCustomers();
-            for (Customer customer : customerList) { //I'm return a whole object of Customer
+            for (Customer customer : customerList) { // I'm return a whole object of Customer
                 ArrayList<Coupon> customerCoupons = (ArrayList<Coupon>) couponsDAO.getCustomerCouponsByCustomerId(customer.getId());
                 customer.setCoupons(customerCoupons);
             }

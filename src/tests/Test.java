@@ -17,6 +17,7 @@ import login.LoginManager;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Test {
@@ -223,7 +224,7 @@ public class Test {
             System.out.println(tab + "---------------ERROR---------------");/*Should provide an error because the Maria-client status is INACTIVE already and she can not make a purchase*/
             createCouponInDatabase(1);
             try {
-                customerMariaFacade.purchaseCoupon(couponsDBDAO.getOneCoupon(4)); /* purchase a new ABLE Coupon(Id=4) with amount 1. */
+                customerMariaFacade.purchaseCoupon(couponsDBDAO.getOneCoupon(4)); /* (error) purchase a new ABLE Coupon(Id=4) with amount 1. */
             } catch (CouponSystemException | SQLException e) {
                 System.out.println(tab + e.getMessage());
                 System.out.println(tab + "-----------------------------------");
@@ -617,13 +618,94 @@ public class Test {
         System.out.println(tab + "---------------ERROR---------------");
         try {
             if (customerRonFacade != null) {
-                createExpiredCouponInDatabase(8,4);
+                createExpiredCouponInDatabase(8, 4);
                 customerRonFacade.purchaseCoupon(couponsDBDAO.getOneCoupon(8));/* Error because purchase an expired coupon */
             }
         } catch (CouponSystemException | SQLException e) {
             System.out.println(tab + e.getMessage());
             System.out.println(tab + "-----------------------------------");
         }
+
+        System.out.println(tab + "---------------ERROR---------------");
+        try {
+            if (customerRonFacade != null) {
+                Coupon couponForPurchaseTwice = couponsDBDAO.getOneCoupon(5);
+                couponForPurchaseTwice.setAmount(20);
+                couponsDBDAO.updateCoupon(couponForPurchaseTwice);
+                customerRonFacade.purchaseCoupon(couponForPurchaseTwice);
+                customerRonFacade.purchaseCoupon(couponForPurchaseTwice);/* Error because purchase coupon twice */
+            }
+        } catch (CouponSystemException | SQLException e) {
+            System.out.println(tab + e.getMessage());
+            System.out.println(tab + "-----------------------------------");
+        }
+        System.out.println();
+
+        System.out.println(tab + "GET_CUSTOMER_COUPONS METHOD TESTING:");
+        System.out.println(tab + "------------PROPER CASE------------");
+        if (customerRonFacade != null) {
+            try {
+                List<Coupon> customerCoupons = customerRonFacade.getCustomerCoupons();
+                for (Coupon customerCoupon : customerCoupons) {
+                    System.out.println(customerCoupon);
+                }
+            } catch (CouponSystemException couponSystemException) {
+                couponSystemException.printStackTrace();
+            }
+        }
+        System.out.println(tab + "Get customer coupons successfully");
+        System.out.println(tab + "-----------------------------------");
+        System.out.println();
+
+        System.out.println(tab + "GET_CUSTOMER_COUPONS_BY_CATEGORY METHOD TESTING:");
+        System.out.println(tab + "------------PROPER CASE------------");
+        if (customerRonFacade != null) {
+            try {
+                createCustomerPurchaseInDatabase(4, customerRonFacade); /* create additional Customer purchase for testing getCustomerCoupons(category) method*/
+                List<Coupon> couponsByCategory = customerRonFacade.getCustomerCoupons(category);/* CategoryId=3 */
+                for (Coupon coupon : couponsByCategory) {
+                    System.out.println(coupon);
+                }
+            } catch (CouponSystemException couponSystemException) {
+                couponSystemException.printStackTrace();
+            }
+        }
+        System.out.println(tab + "Get customer coupons by category successfully");
+        System.out.println(tab + "-----------------------------------");
+        System.out.println();
+
+
+        System.out.println(tab + "GET_COUPONS_UP_TO_MAX_CUSTOMER_PRICE METHOD TESTING:");
+        System.out.println(tab + "------------PROPER CASE------------");
+        if (customerRonFacade != null) {
+            try {
+                List<Coupon> couponsUPTOMaxCustomerPrice = customerRonFacade.getCustomerCoupons(maxPrice);/* maxPrice = 500 */
+                for (Coupon coupon : couponsUPTOMaxCustomerPrice) {
+                    System.out.println(coupon);
+                }
+            } catch (CouponSystemException couponSystemException) {
+                couponSystemException.printStackTrace();
+            }
+        }
+        System.out.println(tab + "Get customer up to max company price successfully");
+        System.out.println(tab + "-----------------------------------");
+        System.out.println();
+
+        System.out.println(tab + "GET_CUSTOMER_DETAILS METHOD TESTING:");
+        System.out.println(tab + "------------PROPER CASE------------");
+        if (customerRonFacade != null) {
+            try {
+                ron = customerRonFacade.getCustomerDetails();
+                ArrayList<Coupon> ronCoupons = (ArrayList<Coupon>) couponsDBDAO.getCustomerCouponsByCustomerId(ron.getId()); /* In order to print a whole object */
+                ron.setCoupons(ronCoupons);
+                System.out.println(ron);
+            } catch (SQLException | CouponSystemException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println(tab + "Get customer details successfully");
+        System.out.println(tab + "-----------------------------------");
+        System.out.println();
 
 
     }
