@@ -15,7 +15,11 @@ public class LoginManager { // LoginManager is Singleton
         }
         return instance;
     }
-
+/**
+* The method log in the client:
+* the method checks by email and password param if client exists, and by clientType param which ClientFacade should return.
+* returns an abstract client facade if the client exists(has the correct credentials) and has correct client type, otherwise throws CouponSystemException.
+ * null is returned when the ClientType doesn't exists. */
     public static ClientFacade login(String email, String password, ClientType clientType) throws CouponSystemException {
         if (clientType == ClientType.ADMINISTRATOR) {
             if (AdminFacade.login(email, password)) {

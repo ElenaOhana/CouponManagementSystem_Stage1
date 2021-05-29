@@ -56,8 +56,15 @@ public class Test {
             System.out.println(tab + "-----------------------------------");
         }
         try {
+            System.out.println(tab + "---------------ERROR---------------");
+            adminFacade = (AdminFacade) LoginManager.login("admin@admin.com", "admin", ClientType.COMPANY); /* Should provide "Wrong admin credentials" error because wrong ClientType. */
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getMessage());
+            System.out.println(tab + "-----------------------------------");
+        }
+        try {
             System.out.println(tab + "------------PROPER CASE------------");
-            adminFacade = (AdminFacade) LoginManager.login("admin@admin.com", "admin", ClientType.ADMINISTRATOR); /* Should get adminFacade successfully, because it's right credentials */
+            adminFacade = (AdminFacade) LoginManager.login("admin@admin.com", "admin", ClientType.ADMINISTRATOR); /* Should get adminFacade successfully, because it's right credentials and correct ClientType*/
             System.out.println(tab + "Right admin credentials");
             System.out.println(tab + "-----------------------------------");
         } catch (CouponSystemException e) {
@@ -69,7 +76,7 @@ public class Test {
         try {
             System.out.println(tab + "------------PROPER CASE------------");
             assert adminFacade != null;
-            adminFacade.addCompany(new Company("Zara women", "zara_women@newFarm.com", "ZARA123")); /* Should create a new newFarm successfully */
+            adminFacade.addCompany(new Company("Zara women", "zara_women@zawomen.com", "ZARA123")); /* Should create a new newFarm successfully */
             System.out.println(tab + "Create a new newFarm successfully");
             System.out.println(tab + "-----------------------------------");
         } catch (CouponSystemException e) {
@@ -77,14 +84,21 @@ public class Test {
         }
         try {
             System.out.println(tab + "---------------ERROR---------------");
-            adminFacade.addCompany(new Company("Zara women", "zara_women@newFarm.com", "ZARA123")); /* Should provide "Company already exist error."*/
+            adminFacade.addCompany(new Company("Zara women", "zara_women@zawomen.com", "ZARA123")); /* Should provide "Company already exist error, because we trying to create Company with the same name and email."*/
         } catch (CouponSystemException e) {
             System.out.println(tab + e.getCause());
             System.out.println(tab + "-----------------------------------");
         }
         try {
             System.out.println(tab + "---------------ERROR---------------");
-            adminFacade.addCompany(new Company("Zara women", "zara@newFarm.com", "ZARA123")); /* Should provide "Duplicate entry 'Zara women' for key 'Name_UNIQUE', because we trying to create Company with the same name."*/
+            adminFacade.addCompany(new Company("Zara women", "figure@figureNet.com", "fig123")); /* Should provide "Duplicate entry 'Zara women' for key 'Name_UNIQUE', because we trying to create new Company with the name that exists already."*/
+        } catch (CouponSystemException e) {
+            System.out.println(tab + e.getCause());
+            System.out.println(tab + "-----------------------------------");
+        }
+        try {
+            System.out.println(tab + "---------------ERROR---------------");
+            adminFacade.addCompany(new Company("Z-women", "zara_women@zawomen.com", "ZARA123")); /* Should provide "Company already exist error", because we trying to create new Company with the email that exists already. "*/
         } catch (CouponSystemException e) {
             System.out.println(tab + e.getCause());
             System.out.println(tab + "-----------------------------------");
@@ -118,9 +132,9 @@ public class Test {
 
         try {
             System.out.println(tab + "---------------ERROR---------------");
-            adminFacade.updateCompany(new Company(2, "New Farm", "new_farm@newFarm.com", "2222")); /* Should provide an error, because we trying update a newFarm id. */
+            adminFacade.updateCompany(new Company(1, "New Farm", "new_farm@newFarm.com", "2222")); /* Should provide an error, because we trying update a newFarm id. */
         } catch (CouponSystemException e) {
-            System.out.println(tab + e.getMessage() + e.getCause());
+            System.out.println(tab + e.getMessage());
             System.out.println(tab + "-----------------------------------");
         }
         System.out.println();
@@ -137,7 +151,7 @@ public class Test {
         }
         try {
             System.out.println(tab + "---------------ERROR---------------");
-            adminFacade.addCustomer(new Customer("Maria", "Gohovich", "maria_go@gmail.com", "1111")); /* Should provide an error: "MySQLIntegrityConstraintViolationException: Duplicate entry 'maria_go@gmail.com' for key 'Email_UNIQUE', because we trying to create Customer with the same email."*/
+            adminFacade.addCustomer(new Customer("Maria", "Gohovich", "maria_go@gmail.com", "1111")); /* Should provide an error: "Wrong credentials." error, because we trying to create Customer with the same email."*/
         } catch (CouponSystemException e) {
             System.out.println(tab + e.getCause());
             System.out.println(tab + "-----------------------------------");
@@ -170,13 +184,20 @@ public class Test {
         System.out.println(tab + "------------PROPER CASE------------");
         if (customerMariaFacade != null) {
             createCustomerPurchaseInDatabase(1, customerMariaFacade);
-            System.out.println(tab + "Customer Maria purchased a coupon with couponId 1");
-            System.out.println(tab + "-----------------------------------");
             createCustomerPurchaseInDatabase(2, customerMariaFacade);
-            System.out.println(tab + "Customer Maria purchased a coupon with couponId 2");
+
+            List<Coupon> mariaCoupons = null;
+            try {
+                mariaCoupons = customerMariaFacade.getCustomerCoupons();
+            } catch (CouponSystemException e) {
+                e.printStackTrace();
+            }
+            for (Coupon coupon : mariaCoupons) {
+                System.out.println(tab + "Customer Maria purchased a coupon with couponId: " + coupon.getId());
+                System.out.println(coupon);
+            }
             System.out.println(tab + "-----------------------------------");
         }
-
 
         System.out.println();
         System.out.println();
@@ -301,21 +322,21 @@ public class Test {
         System.out.println(tab + "LOGIN_COMPANY METHOD TESTING:");
         try {
             System.out.println(tab + "---------------ERROR---------------");/* Should provide "Wrong credentials" error, because we try to login company with wrong email. */
-            companyZaraFacade = (CompanyFacade) LoginManager.login("za_women@newFarm.com", "ZARA123", ClientType.COMPANY);
+            companyZaraFacade = (CompanyFacade) LoginManager.login("za_women@zawomen.com", "ZARA123", ClientType.COMPANY);
         } catch (CouponSystemException e) {
             System.out.println(tab + e.getMessage());
             System.out.println(tab + "-----------------------------------");
         }
         try {
             System.out.println(tab + "---------------ERROR---------------");/* Should provide "Wrong credentials" error, because we try to login company with wrong password. */
-            companyZaraFacade = (CompanyFacade) LoginManager.login("zara_women@newFarm.com", "123", ClientType.COMPANY);
+            companyZaraFacade = (CompanyFacade) LoginManager.login("zara_women@zawomen.com", "123", ClientType.COMPANY);
         } catch (CouponSystemException e) {
             System.out.println(tab + e.getMessage() + e.getCause());
             System.out.println(tab + "-----------------------------------");
         }
         try {
             System.out.println(tab + "------------PROPER CASE------------");
-            companyZaraFacade = (CompanyFacade) LoginManager.login("zara_women@newFarm.com", "ZARA123", ClientType.COMPANY);
+            companyZaraFacade = (CompanyFacade) LoginManager.login("zara_women@zawomen.com", "ZARA123", ClientType.COMPANY);
             System.out.println(tab + "Right company credentials");
             System.out.println(tab + "-----------------------------------");
         } catch (CouponSystemException e) {
@@ -763,7 +784,8 @@ public class Test {
         }
     }
 
-    /* This method creates coupons in DB without login of any Company in order to test Admin Facade only => addCoupon(coupon) NOT via companyFacade */
+    /**
+     * This method creates coupons in DB without login of any Company in order to test Admin Facade only => addCoupon(coupon) NOT via companyFacade */
     private static void createCouponInDatabase(int companyId) {
         LocalDateTime startDate = LocalDateTime.parse("2021-12-03 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime endDate = LocalDateTime.parse("2021-12-05 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));

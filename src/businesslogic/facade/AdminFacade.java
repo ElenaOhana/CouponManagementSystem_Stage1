@@ -11,21 +11,14 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class AdminFacade extends ClientFacade {
-    private Set<Company> companySet = new HashSet<>();
-    private Set<Customer> customerSet = new HashSet<>();
 
     public AdminFacade() {
     }
 
-    public boolean add(Company company) {
-        companySet.add(company);
-        return true;//todo  maybe? Exception
-    }
-
-    public boolean add(Customer customer) {
-        return customerSet.add(customer);// todo maybe? Exception
-    }
-
+    /**
+     * The method checks by email and password param if the admin insert right credentials.
+     * Returns boolean if true, otherwise throws CouponSystemException.
+     */
     public static boolean login(String email, String password) throws CouponSystemException {
         boolean loginOk;
         boolean emailOk = email.equalsIgnoreCase("admin@admin.com");
@@ -38,20 +31,31 @@ public class AdminFacade extends ClientFacade {
         return loginOk;
     }
 
+    /**
+     * The method receives the company and checks by company email and password if the company exists in Database, if company doesn't exists - the method adds company,
+     * if the company is null - NotFoundException is thrown,
+     * otherwise throws CouponSystemException.
+     */
     public void addCompany(Company company) throws CouponSystemException {
         boolean isCompanyExists;
         try {
-            isCompanyExists = companiesDAO.isCompanyExists(company.getEmail(), company.getPassword());
-            if (!isCompanyExists) {
-                companiesDAO.addCompany(company);
-            } else {
-                throw new InternalSystemException("Company already exist error.");
-            }
+            if (company != null) {
+                isCompanyExists = companiesDAO.isCompanyExists(company.getEmail(), company.getPassword());
+                if (!isCompanyExists) {
+                    companiesDAO.addCompany(company);
+                } else {
+                    throw new InternalSystemException("Company already exist error.");
+                }
+            }  else throw new NotFoundException("Company is not found");
         } catch (SQLException | InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);
         }
     }
 
+    /**
+     * The method receives the company and gets by its id the company from DB in order to check if the client trying to update the company name - in this case, CouponSystemException is thrown,
+     * otherwise, the company is updated in DB.
+     */
     public void updateCompany(Company company) throws CouponSystemException {
         if (company != null) {
             try {
@@ -67,12 +71,17 @@ public class AdminFacade extends ClientFacade {
         }
     }
 
+    /**
+     * By receiving the company Id the method changes status to DISABLE of all coupons that the Company created,
+     * deletes customer purchase from customers_vs_coupons table,
+     * and changes status to INACTIVE of the company.
+     */
     public void deleteCompanyAsChangeStatus(int companyId) throws CouponSystemException {
         List<Integer> customerIdList;
         try {
             List<Coupon> couponList = couponsDAO.getCompanyCouponsByCompanyId(companyId);
             for (Coupon coupon : couponList) {
-                couponsDAO.deleteCouponAsChangeStatus(coupon.getId()); /* Delete(as change status of) all coupons that Company created */
+                couponsDAO.deleteCouponAsChangeStatus(coupon.getId()); /*Delete(as change status) of all coupons that Company created*/
                 customerIdList = couponsDAO.getCustomersIdFromCustomersVsCoupons(coupon.getId());
                 if (customerIdList != null) {
                     for (Integer customerId : customerIdList) {
@@ -89,20 +98,28 @@ public class AdminFacade extends ClientFacade {
         }
     }
 
+    /**
+     * The method gets all companies(includes their coupons) from DB and returns them.
+     * The CouponSystemException is thrown when the SQLException is thrown in the SQL query (in CouponsDAO or CompaniesDAO class).
+     */
     public List<Company> getAllCompanies() throws CouponSystemException {
         List<Company> companiesList;
         try {
-            companiesList = companiesDAO.getAllCompanies(); //I'm return a whole object of Company
+            companiesList = companiesDAO.getAllCompanies(); /* I'm return a whole object of Company */
             for (Company company : companiesList) {
                 ArrayList<Coupon> couponsOfCompany = (ArrayList<Coupon>) couponsDAO.getCompanyCouponsByCompanyId(company.getId());
                 company.setCoupons(couponsOfCompany);
             }
         } catch (SQLException e) {
-                throw new CouponSystemException("DB error.", e);
+            throw new CouponSystemException("DB error.", e);
         }
         return companiesList;
     }
 
+    /**
+     * By receiving the company Id the method gets one company(includes its coupons) from DB and returns it.
+     * The CouponSystemException is thrown when the SQLException or InternalSystemException is thrown in the SQL query (in CouponsDAO or CompaniesDAO class).
+     */
     public Company getOneCompany(int companyID) throws CouponSystemException {
         Company company;
         try {
@@ -114,16 +131,29 @@ public class AdminFacade extends ClientFacade {
         return company;
     }
 
+    /**
+     * The method receives the customer and checks by customer email and password if the customer exists in Database, if customer doesn't exists - the method adds customer,
+     * if the customer is null - NotFoundException is thrown,
+     * otherwise throws CouponSystemException.
+     */
     public void addCustomer(Customer customer) throws CouponSystemException {
+        boolean isCustomerExists;
         try {
             if (customer != null) {
-                customersDAO.addCustomerWithReturnCustomer(customer);
-            } else throw new NotFoundException("Customer is not found") ;
+                isCustomerExists = customersDAO.isCustomerExists(customer.getEmail(), customer.getEmail());
+                if (!isCustomerExists) {
+                    customersDAO.addCustomer(customer);
+                }
+            } else throw new NotFoundException("Customer is not found");
         } catch (SQLException | InternalSystemException e) {
             throw new CouponSystemException("DB error.", e);
         }
     }
 
+    /**
+     * The method receives the customer, checks if the client trying to update the customer id - in this cas, InternalSystemException is thrown from CustomersDAO class,
+     * otherwise, the customer is updated in DB.
+     */
     public void updateCustomer(Customer customer) throws CouponSystemException {
         try {
             customersDAO.updateCustomer(customer);
@@ -145,7 +175,7 @@ public class AdminFacade extends ClientFacade {
         List<Customer> customerList;
         try {
             customerList = customersDAO.getAllCustomers();
-            for (Customer customer : customerList) { // I'm return a whole object of Customer
+            for (Customer customer : customerList) {  /* I'm return a whole object of Customer */
                 ArrayList<Coupon> customerCoupons = (ArrayList<Coupon>) couponsDAO.getCustomerCouponsByCustomerId(customer.getId());
                 customer.setCoupons(customerCoupons);
             }

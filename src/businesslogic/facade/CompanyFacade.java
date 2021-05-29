@@ -32,7 +32,9 @@ public class CompanyFacade extends ClientFacade {
             throw new CouponSystemException("DB error", e);
         }
     }
-
+/**
+* The method checks by email and password param if company exists, and by ClientStatus param if company was deleted or not.
+* Returns the company Id if company exists and has ACTIVE client status, otherwise throws CouponSystemException. */
     public static int loginCompanyReturnId(String email, String password) throws CouponSystemException {
         int companyId = 0;
         try {

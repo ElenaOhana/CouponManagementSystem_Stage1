@@ -31,6 +31,9 @@ public class CustomerFacade extends ClientFacade {
         }
     }
 
+    /**
+     * The method checks by email, password if customer exists, and by ClientStatus if customer had deleted or not.
+     * Returns the customer Id if customer exists and has ACTIVE client status, otherwise throws CouponSystemException. */
     public static int loginCustomerReturnId(String email, String password) throws CouponSystemException {
         int customerId = 0;
         try {

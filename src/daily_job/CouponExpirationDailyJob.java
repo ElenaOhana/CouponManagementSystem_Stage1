@@ -22,7 +22,9 @@ public class CouponExpirationDailyJob implements Runnable {
     private CouponsDAO couponsDAO = CouponsDBDAO.getInstance();
     private CustomersDAO customersDAO = CustomersDBDAO.getInstance();
     private boolean quit = false;
-    private final long MILLISECONDS_IN_DAY = Duration.ofDays(1).toMillis(); /* = 86400000 milliseconds. It promise that DailyJob will work ones a day */
+    /**
+     *  = 86400000 milliseconds. It promise that DailyJob will work ones a day */
+    private final long MILLISECONDS_IN_DAY = Duration.ofDays(1).toMillis();
     private List<Customer> customerList = new ArrayList<>();
     private List<Coupon> couponList = new ArrayList<>();
     private AdminFacade adminFacade = new AdminFacade();
