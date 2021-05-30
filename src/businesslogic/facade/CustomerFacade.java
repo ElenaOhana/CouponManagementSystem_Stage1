@@ -17,6 +17,10 @@ public class CustomerFacade extends ClientFacade {
         this.customerId = customerId;
     }
 
+    /**
+     * The method checks by email and password param if the customer inserted the right credentials.
+     * Returns boolean if true, otherwise throws CouponSystemException.
+     */
     public static boolean login(String email, String password) throws CouponSystemException {
         boolean loginTrue;
         try {
@@ -32,7 +36,7 @@ public class CustomerFacade extends ClientFacade {
     }
 
     /**
-     * The method checks by email, password if customer exists, and by ClientStatus if customer had deleted or not.
+     * The method checks by email, password if customer exists in DB, and by ClientStatus if customer had deleted or not.
      * Returns the customer Id if customer exists and has ACTIVE client status, otherwise throws CouponSystemException. */
     public static int loginCustomerReturnId(String email, String password) throws CouponSystemException {
         int customerId = 0;

@@ -57,17 +57,14 @@ public class ConnectionPool { // ConnectionPool is Singleton
         return connection;
     }
 
+    /**
+     * Method checks if the returned connection is the same connection that was received. */
     public synchronized void restoreConnection(Connection connection) {
-        if (usedConnections.contains(connection)) { /* I check here if the connection that I return is the same connection that I received. */
+        if (usedConnections.contains(connection)) {
             if (freeConnections.size() < MAX_AMOUNT_CONNECTIONS) {
                 freeConnections.add(connection);
-          /*  try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }*/
                 usedConnections.remove(connection);
-                notify(); // TODO synchronized only a small block?
+                notify();
             }
         }
     }

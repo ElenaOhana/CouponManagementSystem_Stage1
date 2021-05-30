@@ -230,28 +230,6 @@ public class CouponsDBDAO implements CouponsDAO { // CouponsDBDAO is Singleton
     }
 
     @Override
-    public void deleteCouponPurchase(int customerID, int couponId) throws SQLException, InternalSystemException {
-        Connection connection = connectionPool.getConnection();
-        final String queryTempChangeCouponStatusByCouponIdAndCustomerID = "UPDATE `coupons` SET `Status` = `DISABLE` WHERE `id` = (" + //TODO check UPDATE `customers_vs_coupons`
-                "SELECT `couponId` FROM `customers_vs_coupons` WHERE `couponId`=? AND `customerId` = ?)";
-         //"UPDATE `customers_vs_coupons` SET `WHAT???` = `unable` WHERE `id` = (" + //TODO check UPDATE `customers_vs_coupons` - If CASCADE works => MUST WORK ON UPDATE
-        //                "SELECT `couponId` FROM `customers_vs_coupons` WHERE `couponId`=? AND `customerId` = ?)"
-
-        ////String queryTempGetCompanyCoupons = "SELECT * FROM companies com join coupons coup on com.companyId = coup.?"; // example with alias
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempChangeCouponStatusByCouponIdAndCustomerID)) {
-            preparedStatement.setInt(1, couponId);
-            preparedStatement.setInt(2, customerID);
-            int row = preparedStatement.executeUpdate();
-            if (row == 0) {
-                throw new InternalSystemException("Delete CouponPurchase failed, no rows affected.");
-            }
-        } finally {
-            connectionPool.restoreConnection(connection);
-        }
-    }
-
-    @Override
     public List<Coupon> getCustomerCouponsByCustomerId(int customerId) throws SQLException {
         Connection connection = connectionPool.getConnection();
         final String queryTempGetCouponListByCustomerId = "SELECT * FROM coupons as c join customers_vs_coupons as cvc on cvc.CustomerId = ? WHERE cvc.couponId = c.id";

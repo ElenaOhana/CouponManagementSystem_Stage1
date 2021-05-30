@@ -19,6 +19,10 @@ public class CompanyFacade extends ClientFacade {
         this.companyId = companyId;
     }
 
+    /**
+     * The method checks by email and password param if the company inserted the right credentials.
+     * Returns boolean if true, otherwise throws CouponSystemException.
+     */
     public static boolean login(String email, String password) throws CouponSystemException {
         boolean loginTrue;
         try {
@@ -32,8 +36,9 @@ public class CompanyFacade extends ClientFacade {
             throw new CouponSystemException("DB error", e);
         }
     }
+
 /**
-* The method checks by email and password param if company exists, and by ClientStatus param if company was deleted or not.
+* The method checks by email and password param if company exists in DB, and by ClientStatus param if company was deleted or not.
 * Returns the company Id if company exists and has ACTIVE client status, otherwise throws CouponSystemException. */
     public static int loginCompanyReturnId(String email, String password) throws CouponSystemException {
         int companyId = 0;
@@ -59,6 +64,14 @@ public class CompanyFacade extends ClientFacade {
         return companyId;
     }
 
+    /**
+     * The method receives the coupon and checks:
+     * 1) if that coupon belongs to logged in company,
+     * 2) if title of coupon doesn't exists in logged in company,
+     * 3) if company doesn't have this coupon -
+     *  - the method adds received coupon,
+     *  otherwise CouponSystemException is thrown.
+     */
     public void addCoupon(Coupon coupon) throws CouponSystemException {
         boolean containsTitle = false;
         int counter = 0;
@@ -67,9 +80,9 @@ public class CompanyFacade extends ClientFacade {
                 if (coupon.getCompanyId() == companyId) {
                     List<Coupon> couponList = couponsDAO.getCompanyCouponsByCompanyId(companyId);
                     for (Coupon coupon1 : couponList) {
-                        String receiveTitle = coupon.getTitle();
+                        String receivedTitle = coupon.getTitle();
                         String fromDBTitle = coupon1.getTitle();
-                        if (receiveTitle.equals(fromDBTitle)) {
+                        if (receivedTitle.equals(fromDBTitle)) {
                             counter++;
                         }
                     }
@@ -85,12 +98,16 @@ public class CompanyFacade extends ClientFacade {
                     throw new CouponSystemException("The action is illegal");
                 }
             }
-        } catch (SQLException e) {
+        } catch (SQLException | InternalSystemException e) {
             throw new CouponSystemException("DB error", e);
         }
     }
 
-    //Documentation: I do 2 catch blocks: with cause for InternalSystemException that thrown from internal check in query method, and without cause for SQLException that throws preparedStatement.
+    //Documentation: There is 2 catch blocks: catch for InternalSystemException that thrown from internal check in query method, and catch for SQLException that throws preparedStatement.
+    /**
+     * This method receives the coupon and checks if that coupon belongs to logged in company and updates received coupon,
+     *  otherwise CouponSystemException is thrown.
+     */
     public void updateCoupon(Coupon coupon) throws CouponSystemException {
         try {
             if (coupon != null) {
@@ -107,6 +124,11 @@ public class CompanyFacade extends ClientFacade {
         }
     }
 
+    /**
+     * By receiving the coupon Id the method checks if that coupon belongs to logged in company,
+     * changes status of company coupons to DISABLE,
+     * deletes customer purchase from customers_vs_coupons table. If some of those operations did not succeed - the CouponSystemException is thrown.
+     */
     public void deleteCoupon(int couponId) throws CouponSystemException {
         List<Integer> customerIdList;
         try {
@@ -132,6 +154,9 @@ public class CompanyFacade extends ClientFacade {
         }
     }
 
+    /**
+     * The method gets all Company coupons from DB, checks if each coupon belongs to logged in company, and returns them.
+     */
     public List<Coupon> getCompanyCoupons() throws CouponSystemException {
         List<Coupon> couponList;
         List<Coupon> couponListByCompany = new ArrayList<>();
@@ -148,6 +173,9 @@ public class CompanyFacade extends ClientFacade {
         return couponListByCompany;
     }
 
+    /**
+     * The method gets all Company coupons by category from DB, checks if each coupon belongs to logged in company, and returns them.
+     */
     public List<Coupon> getCompanyCoupons(Category category) throws CouponSystemException {
         List<Coupon> couponList;
         List<Coupon> couponListByCompany = new ArrayList<>();
@@ -164,6 +192,9 @@ public class CompanyFacade extends ClientFacade {
         return couponListByCompany;
     }
 
+    /**
+     * The method gets all Company coupons by max price from DB, checks if each coupon belongs to logged in company, and returns them.
+     */
     public List<Coupon> getCompanyCoupons(double maxPrice) throws CouponSystemException {
         List<Coupon> couponListUpToPrice = new ArrayList<>();
         try {
@@ -179,6 +210,9 @@ public class CompanyFacade extends ClientFacade {
         return couponListUpToPrice;
     }
 
+    /**
+     * The method gets whole object of Company from DB.
+     */
     public Company getCompanyDetails() throws CouponSystemException { // We know what CompanyId because it that connected
         Company company;
         try {

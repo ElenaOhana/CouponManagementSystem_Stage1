@@ -16,6 +16,8 @@ public interface CustomersDAO {
 
      void updateCustomer(Customer customer) throws SQLException, InternalSystemException;
 
+     /**
+      * This method changes Customer status to INACTIVE. Because in my project I don't delete coupons/companies/customers, instead of it I change them Status. */
      void deleteCustomerAsChangeStatus(int customerID) throws SQLException, InternalSystemException;
 
      List<Customer> getAllCustomers() throws SQLException;
@@ -24,6 +26,8 @@ public interface CustomersDAO {
 
      int loginCustomer(String email) throws SQLException;
 
+     /**
+      * This is the only method that really deletes a table row.  (from customers_vs_coupons table.) */
      void deleteCustomerPurchase(Integer customerId) throws SQLException;
 
      Customer getCustomerByEmail(String email) throws SQLException, InternalSystemException;

@@ -108,14 +108,14 @@ public class Test {
         System.out.println(tab + "UPDATE_COMPANY METHOD TESTING:");
         try {
             System.out.println(tab + "---------------ERROR---------------");
-            adminFacade.updateCompany(new Company(3, "New Farm", "new_farm@newFarm.com", "2222")); /* Should provide "Getting newFarm failed, no ID obtained" error, because we trying update a non exists newFarm. */
+            adminFacade.updateCompany(new Company(3, "New Farm", "new_farm@newFarm.com", "2222")); /* Should provide "DB error.exceptions.InternalSystemException: Getting company failed, no ID obtained." error, because we trying update a non exists newFarm-company. */
         } catch (CouponSystemException e) {
-            System.out.println(tab + e.getMessage() + e.getCause());
+            System.out.println(tab + e.getMessage());
             System.out.println(tab + "-----------------------------------");
         }
         try {
             System.out.println(tab + "------------PROPER CASE------------");
-            adminFacade.addCompany(newFarm); /* Should add a new newFarm (New Farm). */
+            adminFacade.addCompany(newFarm); /* Should add a new company - New Farm(id=3). */
             adminFacade.updateCompany(new Company(3, "New Farm", "new_farm@newFarm.com", "2222")); /* Should update an existing newFarm by id. */
             System.out.println(tab + "Updating a newFarm successfully");
             System.out.println(tab + "-----------------------------------");
@@ -124,7 +124,7 @@ public class Test {
         }
         try {
             System.out.println(tab + "---------------ERROR---------------");
-            adminFacade.updateCompany(new Company(3, "Pharmacy", "new_farm@newFarm.com", "2222")); /* Should provide an "Trying update a newFarm name error.", because we trying update a newFarm name. */
+            adminFacade.updateCompany(new Company(3, "Pharmacy", "new_farm@newFarm.com", "2222")); /* Should provide an "DB error.exceptions.InternalSystemException: Creating company failed, no name obtained." error, because we trying update a newFarm-company name. */
         } catch (CouponSystemException e) {
             System.out.println(tab + e.getMessage());
             System.out.println(tab + "-----------------------------------");
@@ -132,7 +132,7 @@ public class Test {
 
         try {
             System.out.println(tab + "---------------ERROR---------------");
-            adminFacade.updateCompany(new Company(1, "New Farm", "new_farm@newFarm.com", "2222")); /* Should provide an error, because we trying update a newFarm id. */
+            adminFacade.updateCompany(new Company(1, "New Farm", "new_farm@newFarm.com", "2222")); /* Should provide a "Trying update a company id error." error, because we trying update a newFarm id. */
         } catch (CouponSystemException e) {
             System.out.println(tab + e.getMessage());
             System.out.println(tab + "-----------------------------------");
@@ -151,9 +151,9 @@ public class Test {
         }
         try {
             System.out.println(tab + "---------------ERROR---------------");
-            adminFacade.addCustomer(new Customer("Maria", "Gohovich", "maria_go@gmail.com", "1111")); /* Should provide an error: "Wrong credentials." error, because we trying to create Customer with the same email."*/
+            adminFacade.addCustomer(new Customer("Maria", "Gohovich", "maria_go@gmail.com", "1111")); /* Should provide an error: "An error has occurred. The customer already exists." error, because we trying to create Customer with exists email."*/
         } catch (CouponSystemException e) {
-            System.out.println(tab + e.getCause());
+            System.out.println(tab + e.getMessage());
             System.out.println(tab + "-----------------------------------");
         }
         try {
@@ -417,7 +417,7 @@ public class Test {
         System.out.println(tab + "UPDATE_COUPON METHOD TESTING:");
         try {
             System.out.println(tab + "------------PROPER CASE------------");
-            coupon2 = createFamilyHofeshCoupon(1, 3); /* The login Company Zara(id=1) updated it's coupon */
+            coupon2 = createFamilyHofeshCoupon(1, 3); /* The login Company Zara(id=1) updated its coupon */
             if (companyZaraFacade != null) {
                 companyZaraFacade.updateCoupon(coupon2);
             }
@@ -474,7 +474,7 @@ public class Test {
                     List<Coupon> ronCoupons = customerRonFacade.getCustomerCoupons();
                     System.out.println(ronCoupons);
                 }
-                System.out.println(tab + "Log in as Ron customer(id=3) and his purchase was successful");
+                System.out.println(tab + "Log in as Ron customer with id: "+ ron.getId() +" and his purchase was successful");
             } catch (CouponSystemException e) {
                 e.printStackTrace();
             }
@@ -552,7 +552,7 @@ public class Test {
             }
         }
         System.out.println(tab + "Get company coupons by category successfully");
-        System.out.println(tab + "-----------------------------------");
+        System.out.println(tab + "----------------------------------------------");
         System.out.println();
 
 
@@ -728,10 +728,17 @@ public class Test {
         System.out.println(tab + "-----------------------------------");
         System.out.println();
 
-
+        System.out.println("***** Print the expired coupon to show that CouponExpirationDailyJob thread will delete the expired coupon (will change coupon status to DISABLE\n" +
+                " and delete the coupon purchase from customers_vs_coupons table) after it will start to run. *****");
+        try {
+            System.out.println(couponsDBDAO.getOneCoupon(8));
+        } catch (SQLException | InternalSystemException e) {
+            e.printStackTrace();
+        }
     }
 
-    /* This method creates coupons in DB without login of any Company in order to test Customer Facade and DailyJobThread => addCoupon(coupon) NOT via companyFacade */
+    /**
+     *  This method creates coupons in DB without login of any Company in order to test Customer Facade (not allowed to purchase an expired coupon) => addCoupon(coupon) NOT via companyFacade, but straight through couponsDBDAO */
     private static void createExpiredCouponInDatabase(int couponId, int companyId) {
         LocalDateTime startDate = LocalDateTime.parse("2021-02-30 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         LocalDateTime endDate = LocalDateTime.parse("2021-04-30 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
@@ -744,22 +751,6 @@ public class Test {
         } catch (SQLException | InternalSystemException e) {
             e.printStackTrace();
         }
-    }
-
-
-    private static Coupon getCouponFromDatabase(int couponId) {
-        CouponsDAO couponsDBDAO = CouponsDBDAO.getInstance();
-        Coupon coupon = null;
-        try {
-            coupon = couponsDBDAO.getOneCoupon(couponId);
-        } catch (SQLException | InternalSystemException e) {
-            e.printStackTrace();
-        } finally {
-            if (coupon == null) {
-                System.out.println("get Coupon From Database ERROR");
-            }
-        }
-        return coupon;
     }
 
     private static Customer createCustomerInDatabase(Customer customer) {
@@ -812,6 +803,22 @@ public class Test {
         LocalDateTime endDate = LocalDateTime.parse("2021-12-05 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         Coupon coupon = new Coupon(couponId, companyId, 3, "Nofesh packet", "Spa in Galil", startDate, endDate, 1, 300, "image");
         return coupon;
+    }
+
+    /**
+     *  This method creates coupons in DB without login of any Company in order to test CouponExpirationDailyJob */
+    private static void createExpiredCouponInDBForDailyJobThread(int couponId, int companyId , String expiredDate) {
+        LocalDateTime startDate = LocalDateTime.parse("2021-05-01 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime endDate = LocalDateTime.parse(expiredDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        CouponsDBDAO couponsDBDAO = CouponsDBDAO.getInstance();
+        Coupon coupon = new Coupon(couponId, companyId, 2, "CouponForDailyJob", "Honda dream day", startDate, endDate, 15, 150000, "image");
+        try {
+            if (couponsDBDAO != null) {
+                couponsDBDAO.addCoupon(coupon); /* straight through couponsDBDAO */
+            }
+        } catch (SQLException | InternalSystemException e) {
+            e.printStackTrace();
+        }
     }
 }
 

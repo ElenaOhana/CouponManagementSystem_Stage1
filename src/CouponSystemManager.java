@@ -5,7 +5,7 @@ public class CouponSystemManager { // is Singleton
     private static CouponSystemManager instance;
     private ConnectionPool connectionPool;
     private Thread dailyJob;
-//    CouponExpirationDailyJob couponExpirationDailyJob = new CouponExpirationDailyJob();
+
     public CouponExpirationDailyJob couponExpirationDailyJob;
 
     public static CouponSystemManager getInstance() {

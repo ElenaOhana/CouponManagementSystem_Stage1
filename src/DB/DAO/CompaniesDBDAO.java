@@ -86,7 +86,7 @@ public class CompaniesDBDAO implements CompaniesDAO { // CompaniesDBDAO is Singl
     }
 
     @Override
-    public void deleteCompanyAsChangeStatus(int companyID) throws SQLException, InternalSystemException { /* I do not delete object, I add status inactive instead */ //TODO  to add status inactive to ClientStatus after deleting
+    public void deleteCompanyAsChangeStatus(int companyID) throws SQLException, InternalSystemException {
         Connection connection = connectionPool.getConnection();
         final String queryTempChangeCompanyStatus = "UPDATE `Companies` SET `Status` = ? WHERE `id` = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempChangeCompanyStatus)) {
@@ -166,7 +166,7 @@ public class CompaniesDBDAO implements CompaniesDAO { // CompaniesDBDAO is Singl
                     ClientStatus clientStatus = ClientStatus.valueOf(status);
                     company = new Company(id, name, email, password, clientStatus);
                 } else {
-                    throw new InternalSystemException("Creating company failed, no ID obtained.");
+                    throw new InternalSystemException("Creating company failed, no name obtained.");
                 }
             }
         } finally {

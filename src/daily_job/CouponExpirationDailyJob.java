@@ -23,7 +23,7 @@ public class CouponExpirationDailyJob implements Runnable {
     private CustomersDAO customersDAO = CustomersDBDAO.getInstance();
     private boolean quit = false;
     /**
-     *  = 86400000 milliseconds. It promise that DailyJob will work ones a day */
+     *  = 86400000 milliseconds. It promise that DailyJob will work ones a day. It must replace the 5_000 at sleepDailyJob(5_000) method. */
     private final long MILLISECONDS_IN_DAY = Duration.ofDays(1).toMillis();
     private List<Customer> customerList = new ArrayList<>();
     private List<Coupon> couponList = new ArrayList<>();
@@ -36,59 +36,42 @@ public class CouponExpirationDailyJob implements Runnable {
 
             doJob();
 
-            try {
-                Thread.sleep(5_000); // In order to check the couponExpirationDailyJob.stop() (in Program class) is work, you can change the MILLISECONDS_IN_DAY to 5_000.
-                System.out.println("I'm running in the background after sleep"); // only for check
-            } catch (InterruptedException e) {
-                throw new RuntimeException("Thread doesn't succeed to sleep");
-            }
+            sleepDailyJob(5_000);
         }
     }
 
+    /**
+     * I have change the MILLISECONDS_IN_DAY param to 5_000 milliseconds in order to check that couponExpirationDailyJob can stop. */
+    private void sleepDailyJob(long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+            System.out.println("I'm running in the background after sleep"); // only for check
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Thread doesn't succeed to sleep");
+        }
+    }
+
+    /** This method changes status to DISABLE (as delete) of all expired coupons and
+     * deletes customer purchases of those expired coupons.
+     * */
     private synchronized void doJob() {
         try {
             couponList = couponsDAO.getAllCoupons();
             for (Coupon coupon : couponList) {
-                int couponId = coupon.getId();
                 if (coupon.getEndDate().isBefore(LocalDateTime.now())) {
                     try {
-                        couponsDAO.deleteCouponAsChangeStatus(couponId);  /* Change status to DISABLE (as delete) of coupon */
-                    } catch (InternalSystemException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-      ///////////TODO from here
-            try {
-                customerList = adminFacade.getAllCustomers();
-            } catch (CouponSystemException e) {
-                e.printStackTrace();
-            }
-            System.out.println(customerList); //TODO
-        } catch (SQLException e) {
-            throw new RuntimeException("DB error from CouponExpirationDailyJob.", e);
-        }
-        try {
-            for (Customer customer : customerList) {
-                couponList = customer.getCoupons();
-                int customerId = customer.getId();
-                System.out.println("**********couponList from Thread " + couponList); // TODO
-                if (couponList == null) {
-                    throw new NotFoundException("There are not coupons purchase for customer with id: " + customer.getId()+ ", customer name:" + customer.getFirstName());
-                } else {
-                    for (Coupon coupon : couponList) {
-                        int couponId = coupon.getId();
-                        if (coupon.getEndDate().isBefore(LocalDateTime.now())) {
-                            customersDAO.deleteCustomerPurchase(customerId); /* Delete customer purchase from customers_vs_coupons */
-                            System.out.println("Expired coupons and their purchases are deleted");
-                        } else {
-                            System.out.println("There are not expired coupons for customer with id: " + customer.getId()+ ", customer name: " + customer.getFirstName());
+                        couponsDAO.deleteCouponAsChangeStatus(coupon.getId());   //status to DISABLE
+                        List<Integer> customerIdOfExpiredCoupons = couponsDAO.getCustomersIdFromCustomersVsCoupons(coupon.getId());
+                        for (Integer customerIdOfExpiredCoupon : customerIdOfExpiredCoupons) {
+                            customersDAO.deleteCustomerPurchase(customerIdOfExpiredCoupon); // deletes customer purchases
                         }
+                    } catch (InternalSystemException e) {
+                        throw new RuntimeException("DB error from CouponExpirationDailyJob.", e);
                     }
                 }
-
             }
-        } catch (SQLException | NotFoundException e) {
+
+        } catch (SQLException e) {
             throw new RuntimeException("DB error from CouponExpirationDailyJob.", e);
         }
         finally {

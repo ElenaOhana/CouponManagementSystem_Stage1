@@ -14,6 +14,8 @@ public interface CompaniesDAO {
 
      void updateCompany(Company company) throws SQLException, InternalSystemException;
 
+     /**
+      * This method changes company status to INACTIVE. Because in my project I don't delete coupons/companies/customers, instead of it I change them Status. */
      void deleteCompanyAsChangeStatus(int companyID) throws SQLException, InternalSystemException;
 
      List<Company> getAllCompanies() throws SQLException;
@@ -21,8 +23,6 @@ public interface CompaniesDAO {
      Company getOneCompany(int companyID) throws SQLException, InternalSystemException;
 
      Company getCompanyByName(String name) throws SQLException, InternalSystemException;
-
-     //boolean isCompanyNameExists(String name) throws SQLException;
 
      Company getCompanyByEmail(String email) throws SQLException, InternalSystemException;
 
