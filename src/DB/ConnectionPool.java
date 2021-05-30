@@ -5,8 +5,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
-
-public class ConnectionPool { // ConnectionPool is Singleton
+ /**
+  * ConnectionPool is Singleton*/
+public class ConnectionPool {
     private static final int MAX_AMOUNT_CONNECTIONS = 5;
     private static ConnectionPool instance;
     String host = "localhost:3306";
@@ -24,7 +25,7 @@ public class ConnectionPool { // ConnectionPool is Singleton
         return instance;
     }
 
-    private ConnectionPool() { //private Constructor
+    private ConnectionPool() {
         this.freeConnections = new HashSet<>(MAX_AMOUNT_CONNECTIONS);
         for (int i = 0; i < MAX_AMOUNT_CONNECTIONS; i++) {
             freeConnections.add(getConnectionToFillThePool());

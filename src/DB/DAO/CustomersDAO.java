@@ -17,7 +17,7 @@ public interface CustomersDAO {
      void updateCustomer(Customer customer) throws SQLException, InternalSystemException;
 
      /**
-      * This method changes Customer status to INACTIVE. Because in my project I don't delete coupons/companies/customers, instead of it I change them Status. */
+      * This method changes Customer status to INACTIVE. */
      void deleteCustomerAsChangeStatus(int customerID) throws SQLException, InternalSystemException;
 
      List<Customer> getAllCustomers() throws SQLException;

@@ -1,11 +1,11 @@
 import DB.ConnectionPool;
 import daily_job.CouponExpirationDailyJob;
-
-public class CouponSystemManager { // is Singleton
+/**
+ * CouponSystemManager is Singleton */
+public class CouponSystemManager {
     private static CouponSystemManager instance;
     private ConnectionPool connectionPool;
     private Thread dailyJob;
-
     public CouponExpirationDailyJob couponExpirationDailyJob;
 
     public static CouponSystemManager getInstance() {

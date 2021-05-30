@@ -14,7 +14,7 @@ public interface CouponsDAO {
     void updateCoupon(Coupon coupon) throws SQLException, InternalSystemException;
 
     /**
-     * This method changes coupon status to DISABLE. Because in my project I don't delete coupons/companies/customers, instead of it I change them Status. */
+     * This method changes coupon status to DISABLE. */
     void deleteCouponAsChangeStatus(int couponID) throws SQLException, InternalSystemException;
 
     List<Coupon> getAllCoupons() throws SQLException;
