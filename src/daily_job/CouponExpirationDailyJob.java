@@ -21,7 +21,7 @@ public class CouponExpirationDailyJob implements Runnable {
     private CustomersDAO customersDAO = CustomersDBDAO.getInstance();
     private boolean quit = false;
     /**
-     *  = 86400000 milliseconds. It promise that DailyJob will work ones a day. It must replace the 5_000 at sleepDailyJob(5_000) method. */
+     *  = 86400000 milliseconds. It promise that DailyJob will work ones a day. MILLISECONDS_IN_DAY must replace the 5_000 at sleepDailyJob(5_000) method. */
     private final long MILLISECONDS_IN_DAY = Duration.ofDays(1).toMillis();
     private List<Customer> customerList = new ArrayList<>();
     private List<Coupon> couponList = new ArrayList<>();
@@ -39,11 +39,11 @@ public class CouponExpirationDailyJob implements Runnable {
     }
 
     /**
-     * I have change the MILLISECONDS_IN_DAY param to 5_000 milliseconds in order to check that couponExpirationDailyJob can stop. */
+     * I have change the MILLISECONDS_IN_DAY param to 5_000 milliseconds in order to show that couponExpirationDailyJob can wake up and stop in Program class. */
     private void sleepDailyJob(long milliseconds) {
         try {
             Thread.sleep(milliseconds);
-            System.out.println("I'm running in the background after sleep"); // only for check
+            System.out.println("I'm running in the background after sleep"); // only for console test
         } catch (InterruptedException e) {
             throw new RuntimeException("Thread doesn't succeed to sleep");
         }
@@ -58,7 +58,7 @@ public class CouponExpirationDailyJob implements Runnable {
             for (Coupon coupon : couponList) {
                 if (coupon.getEndDate().isBefore(LocalDateTime.now())) {
                     try {
-                        couponsDAO.deleteCouponAsChangeStatus(coupon.getId());   //status to DISABLE
+                        couponsDAO.deleteCouponAsChangeStatus(coupon.getId());  // changes status to DISABLE
                         List<Integer> customerIdOfExpiredCoupons = couponsDAO.getCustomersIdFromCustomersVsCoupons(coupon.getId());
                         for (Integer customerIdOfExpiredCoupon : customerIdOfExpiredCoupons) {
                             customersDAO.deleteCustomerPurchase(customerIdOfExpiredCoupon); // deletes customer purchases
