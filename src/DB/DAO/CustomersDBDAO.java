@@ -9,7 +9,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CustomersDBDAO implements CustomersDAO { // CustomersDBDAO is Singleton
+/**
+ * CustomersDBDAO is Singleton*/
+public class CustomersDBDAO implements CustomersDAO {
 
     private static CustomersDBDAO instance;
 

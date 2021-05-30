@@ -4,13 +4,13 @@ import DB.ConnectionPool;
 import exceptions.InternalSystemException;
 import java_beans_entities.ClientStatus;
 import java_beans_entities.Company;
-import java_beans_entities.Coupon;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
-public class CompaniesDBDAO implements CompaniesDAO { // CompaniesDBDAO is Singleton
+/**
+ * CompaniesDBDAO is Singleton*/
+public class CompaniesDBDAO implements CompaniesDAO {
 
     private static CompaniesDBDAO instance;
 

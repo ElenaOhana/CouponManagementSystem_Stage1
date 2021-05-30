@@ -11,7 +11,6 @@ import java.sql.SQLException;
 * In DBPseudoDataManager I am creating a pseudo data
 * */
 public class DBPseudoDataManager {
-    //static final String queryTempCreateSchema = "CREATE SCHEMA IF NOT EXISTS `coupon_management_system`" ;
     static final String queryTempDropTableCompanies = "DROP TABLE IF EXISTS `coupon_management_system`.`companies`";
     static final String queryTempDropTableCategories = "DROP TABLE IF EXISTS `coupon_management_system`.`categories`";
     static final String queryTempDropTableCustomers = "DROP TABLE IF EXISTS `coupon_management_system`.`customers`";

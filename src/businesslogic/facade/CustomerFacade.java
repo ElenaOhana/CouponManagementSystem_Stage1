@@ -1,6 +1,5 @@
 package businesslogic.facade;
 
-import com.sun.xml.internal.bind.v2.TODO;
 import exceptions.CouponSystemException;
 import exceptions.InternalSystemException;
 import java_beans_entities.*;
@@ -62,6 +61,11 @@ public class CustomerFacade extends ClientFacade {
         return customerId;
     }
 
+    /**
+     * The method receives the coupon and checks many of restrictions for purchase and if all of them take places,
+     * so the row of customer purchase will be added to customers_vs_coupons table, amount of coupon will be decreased by 1.
+     *  otherwise CouponSystemException is thrown.
+     */
     public void purchaseCoupon(Coupon coupon) throws CouponSystemException {
         int couponExpiryDate = coupon.getEndDate().compareTo(LocalDateTime.now());
         List<Coupon> couponListByCustomerId;

@@ -1,6 +1,5 @@
 package tests;
 
-import DB.DAO.CouponsDAO;
 import DB.DAO.CouponsDBDAO;
 import DB.DAO.CustomersDBDAO;
 import DB.DBPseudoDataManager;

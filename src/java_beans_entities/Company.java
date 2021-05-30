@@ -9,7 +9,7 @@ public class Company {
     private String email;
     private String password;
     private ArrayList<Coupon> coupons = new ArrayList<>();
-    ClientStatus clientStatus = ClientStatus.ACTIVE; // TODO IN DAO: By default clientStatus is ACTIVE, only after call deleteCompany(Company company) method - the clientStatus turns to INACTIVE.
+    ClientStatus clientStatus = ClientStatus.ACTIVE;
 
     public Company(int id, String name, String email, String password) {
         this.id = id;

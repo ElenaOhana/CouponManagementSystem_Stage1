@@ -5,9 +5,7 @@ import DB.DAO.CouponsDBDAO;
 import DB.DAO.CustomersDAO;
 import DB.DAO.CustomersDBDAO;
 import businesslogic.facade.AdminFacade;
-import exceptions.CouponSystemException;
 import exceptions.InternalSystemException;
-import exceptions.NotFoundException;
 import java_beans_entities.Coupon;
 import java_beans_entities.Customer;
 

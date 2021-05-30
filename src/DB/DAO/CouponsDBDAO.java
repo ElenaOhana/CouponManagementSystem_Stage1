@@ -9,7 +9,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CouponsDBDAO implements CouponsDAO { // CouponsDBDAO is Singleton
+/**
+ * CouponsDBDAO is Singleton*/
+public class CouponsDBDAO implements CouponsDAO {
 
     private ConnectionPool connectionPool;
 
@@ -28,7 +30,7 @@ public class CouponsDBDAO implements CouponsDAO { // CouponsDBDAO is Singleton
 
     @Override
     public void addCoupon(Coupon coupon) throws SQLException, InternalSystemException {
-        Connection connection = connectionPool.getConnection();  // There is a default `ABLE` status for `Coupons` table.
+        Connection connection = connectionPool.getConnection();
         final String queryTempInsertCoupon = "INSERT INTO `Coupons` (`title`, `Description`, `StartDate`, `EndDate`, `Amount`, `Price`, `IMAGE`, `CompanyId`, `CategoryId`) VALUES (?,?,?,?,?,?,?,?,?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryTempInsertCoupon)) {
             preparedStatement.setString(1, coupon.getTitle());
