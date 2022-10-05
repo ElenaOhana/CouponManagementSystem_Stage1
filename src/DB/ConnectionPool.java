@@ -10,11 +10,10 @@ import java.util.Set;
 public class ConnectionPool {
     private static final int MAX_AMOUNT_CONNECTIONS = 5;
     private static ConnectionPool instance;
-    String host = "localhost:3306";
-    String dbName = "coupon_management_system";
-    String url = "jdbc:mysql://" + host + "/" + dbName + "?useSSL=false";
-    String username = "root";
-    String password = "";
+    private final String host = "localhost:3306";
+    private final String dbName = "coupon_management_system";
+    private final String username = "root";
+    private final String password = "";
     private final Set<Connection> freeConnections;
     private final Set<Connection> usedConnections = new HashSet<>(MAX_AMOUNT_CONNECTIONS);
 
@@ -35,6 +34,7 @@ public class ConnectionPool {
     private Connection getConnectionToFillThePool(){
         Connection connection = null;
         try {
+            String url = "jdbc:mysql://" + host + "/" + dbName + "?useSSL=false";
             connection = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
             throw new RuntimeException("DB connection error");

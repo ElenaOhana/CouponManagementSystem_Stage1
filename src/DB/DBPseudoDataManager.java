@@ -16,7 +16,7 @@ public class DBPseudoDataManager {
     static final String queryTempDropTableCustomers = "DROP TABLE IF EXISTS `coupon_management_system`.`customers`";
     static final String queryTempDropTableCoupons = "DROP TABLE IF EXISTS `coupon_management_system`.`coupons`";
     static final String queryTempDropTableCustomersVSCoupons = "DROP TABLE IF EXISTS `coupon_management_system`.`customers_vs_coupons`";
-    static final String queryTempCreateCategories = "INSERT INTO `coupon_management_system`.`categories` (`FirstName`) VALUES (?);";
+    static final String queryTempCreateCategories = "INSERT INTO `coupon_management_system`.`categories` (`FirstName`) VALUES (?)";
 
     static final String queryTempCreateTableCompanies = "CREATE TABLE IF NOT EXISTS`coupon_management_system`.`companies` (\n" +
             "\t`ID` INT NOT NULL AUTO_INCREMENT,\n" +

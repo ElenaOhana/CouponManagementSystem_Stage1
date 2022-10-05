@@ -53,16 +53,17 @@ public class AdminFacade extends ClientFacade {
     }
 
     /**
-     * The method receives the company and gets by its id and its name the company from DB in order to check if the client trying to update the company name or company id - in this case, CouponSystemException is thrown,
+     * The method receives the company and gets by its id and its name the company from DB in order to check
+     * if the client trying to update the company name or company id - in this case, CouponSystemException is thrown,
      * otherwise, the company is updated in DB.
      */
     public void updateCompany(Company company) throws CouponSystemException {
-        boolean isCompanyExists;
+        boolean isCompanyExistsByEmailAndPassword;
         try {
             Company companyByIdFromDB = companiesDAO.getOneCompany(company.getId());
             Company companyByNameFromDB = companiesDAO.getCompanyByName(company.getName());
-            isCompanyExists = companiesDAO.isCompanyExists(company.getEmail(), company.getPassword());
-            if (isCompanyExists) {
+            isCompanyExistsByEmailAndPassword = companiesDAO.isCompanyExists(company.getEmail(), company.getPassword());
+            if (isCompanyExistsByEmailAndPassword) {
                 if (companyByNameFromDB.getId() != company.getId()) {
                     throw new CouponSystemException("Trying update a company id error.");
                 }
